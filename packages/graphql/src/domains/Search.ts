@@ -24,11 +24,19 @@ export type SearchResult = {
   };
 };
 
+export type SearchResultByBlockNumber = {
+  block: null | {
+    id: string;
+    height: string;
+  };
+};
+
 export class SearchDomain extends Domain<any, Args> {
   static createResolvers() {
     const domain = new SearchDomain();
     return {
       ...domain.createResolver('search', 'getSearch'),
+      ...domain.createResolver('searchByBlock', 'getSearchByBlockNumber'),
     };
   }
 
@@ -117,6 +125,45 @@ export class SearchDomain extends Domain<any, Args> {
     if (data.transaction) {
       result.transaction = { id: data.transaction.id };
     }
+    return result;
+  }
+
+  async getSearchByBlockNumber() {
+    const { query } = this.args;
+    // TODO use last 5 once reverse pagination is supported
+    const gqlQuery = gql`
+      query fuelCoreQuery(
+        $blockId: BlockId!
+      ) {
+        block(id: $blockId) {
+          id
+          header {
+            height
+          }
+        }
+      }
+    `;
+
+    type Result = {
+      block: {
+        id: string;
+        header: {
+          height: string;
+        };
+      };
+    };
+
+    const data = await this.query<Result>(gqlQuery, {
+      blockId: query,
+    });
+    const result: SearchResultByBlockNumber = {
+      block: null,
+    };
+
+    if (data.block) {
+      result.block = { id: data.block.id, height: data.block.header.height };
+    }
+
     return result;
   }
 }
