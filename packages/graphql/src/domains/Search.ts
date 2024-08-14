@@ -135,7 +135,7 @@ export class SearchDomain extends Domain<any, Args> {
       query fuelCoreQuery(
         $blockId: BlockId!
       ) {
-        block(id: $blockId) {
+        block(height: $blockId) {
           id
           header {
             height

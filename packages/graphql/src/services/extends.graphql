@@ -164,14 +164,11 @@ type SearchResult {
   transaction: SearchTransaction
 }
 
-type SearchResultByBlockNumber {
+type SearchResultByBlock {
   block: SearchBlock
 }
 
 extend type Query {
   search(query: String!): SearchResult
-}
-
-extend type Query {
-  searchByBlock(query: String!): SearchResultByBlockNumber
+  searchByBlock(query: String!): SearchResultByBlock
 }

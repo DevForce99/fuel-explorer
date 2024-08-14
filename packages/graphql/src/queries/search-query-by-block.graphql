@@ -1,0 +1,8 @@
+query searchQueryByBlock($search: String!) {
+  searchByBlock(query: $search) {
+    block {
+      id
+      height
+    }
+  }
+}
