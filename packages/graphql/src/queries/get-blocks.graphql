@@ -1,0 +1,53 @@
+# import TransactionOutput, TransactionItem from ./tx-fragments.graphql
+
+fragment BlockItem on Block {
+  # Custom Resolvers
+  time {
+    fromNow
+    full
+    rawTai64
+    rawUnix
+  }
+  totalGasUsed
+  producer
+
+  # Block Data
+  id
+  consensus {
+    __typename
+    ... on PoAConsensus {
+      signature
+    }
+  }
+  header {
+    id
+    height
+    time
+    transactionsCount
+  }
+
+  transactions {
+    isMint
+    mintAmount
+    gasUsed
+  }
+}
+
+query getBlocks(
+    $last: Int,
+    $before: String
+) {
+    blocks(last: $last, before: $before) {
+        pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+        }
+        edges {
+            node {
+                ...BlockItem
+            }
+        }
+    }
+}
