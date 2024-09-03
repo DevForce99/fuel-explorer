@@ -75,6 +75,12 @@ const styles = tv({
       'tablet:text-left tablet:text-4xl tablet:justify-start',
     ],
     subtitle: ['text-base mb-8 justify-center'],
-    searchWrapper: 'grid grid-cols-12 grid-rows-auto auto-rows-min gap-5',
+    searchWrapper: [
+      'grid gap-5',
+      'grid-cols-1 grid-rows-auto auto-rows-min',
+      'md:grid-cols-1 md:grid-rows-[auto,auto]',
+      'lg:grid-cols-12 lg:grid-rows-[auto,auto]',
+      'gap-y-5 gap-x-4',
+    ],
   },
 });
