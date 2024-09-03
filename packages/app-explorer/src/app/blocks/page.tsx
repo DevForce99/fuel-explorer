@@ -1,13 +1,23 @@
-import dynamicImport from 'next/dynamic';
-const Page = dynamicImport(
-  async () => import('~/systems/Home/screens/BlocksScreen'),
-  {
-    ssr: false,
-    //   loading: () => <BridgeScreenLoader view="bridge" />,
+'use client';
+import { Box, Flex } from '@fuels/ui';
+import { tv } from 'tailwind-variants';
+import { BlocksScreen } from '~/systems/Block/screens/BlockScreen';
+
+const Blocks = () => {
+  const classes = styles();
+  return (
+    <Flex justify="center">
+      <Box className={classes.content()}>
+        <BlocksScreen />
+      </Box>
+    </Flex>
+  );
+};
+const styles = tv({
+  slots: {
+    content: 'w-full max-w-[100%]',
   },
-);
-export default function Blocks() {
-  return <Page />;
-}
+});
+export default Blocks;
 
 export const dynamic = 'force-static';

@@ -1,4 +1,5 @@
 import { GridTable } from '@fuels/ui';
+
 import BlockEfficiencyItem from '../BlockEfficiencyItem/BlockEfficiencyItem';
 import BlockHashItem from '../BlockHashItem/BlockHashItem';
 import BlockItem from '../BlockItem/BlockItem';
