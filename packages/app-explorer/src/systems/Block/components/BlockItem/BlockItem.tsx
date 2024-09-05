@@ -1,19 +1,26 @@
 import { Box, Copyable, HStack, Text, VStack } from '@fuels/ui';
 
-export default function BlockItem() {
+export interface BlockItemProps {
+  blockId: string;
+  ethValue: string;
+}
+
+export default function BlockItem({ blockId, ethValue }: BlockItemProps) {
   return (
     <VStack gap="1">
       <HStack>
         <Box>
           <Copyable
-            value={'#275029958'}
+            value={blockId}
             className="font-mono font-semibold text-sm "
           >
-            #275029958
+            {blockId}
           </Copyable>
         </Box>
       </HStack>
-      <Text className="text-gray-10 text-xs"> 0.004878700 ETH</Text>
+      <Text className="text-gray-10 text-xs text-ellipsis w-[7rem]">
+        {ethValue} ETH
+      </Text>
     </VStack>
   );
 }

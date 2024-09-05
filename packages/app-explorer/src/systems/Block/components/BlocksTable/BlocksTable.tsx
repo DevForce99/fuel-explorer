@@ -1,146 +1,90 @@
+import { GQLBlocksQuery } from '@fuel-explorer/graphql';
 import { GridTable } from '@fuels/ui';
-
 import BlockEfficiencyItem from '../BlockEfficiencyItem/BlockEfficiencyItem';
 import BlockHashItem from '../BlockHashItem/BlockHashItem';
 import BlockItem from '../BlockItem/BlockItem';
 import BlockTimeItem from '../BlockTimeItem/BlockTimeItem';
 import BlockValidatorItem from '../BlockValidatorItem/BlockValidatorItem';
 
-export interface RowData {
-  id: number;
-  name: string;
-  age: number;
-  email: string;
-  status: string;
-}
-
-export const data: RowData[] = [
-  {
-    id: 1,
-    name: 'John Doe',
-    age: 28,
-    email: 'john.doe@example.com',
-    status: 'Active',
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    age: 34,
-    email: 'jane.smith@example.com',
-    status: 'Inactive',
-  },
-  {
-    id: 3,
-    name: 'Michael Johnson',
-    age: 45,
-    email: 'michael.johnson@example.com',
-    status: 'Active',
-  },
-  {
-    id: 4,
-    name: 'Emily Davis',
-    age: 23,
-    email: 'emily.davis@example.com',
-    status: 'Pending',
-  },
-  {
-    id: 5,
-    name: 'William Brown',
-    age: 39,
-    email: 'william.brown@example.com',
-    status: 'Active',
-  },
-  {
-    id: 6,
-    name: 'Olivia Taylor',
-    age: 29,
-    email: 'olivia.taylor@example.com',
-    status: 'Inactive',
-  },
-  {
-    id: 7,
-    name: 'James Anderson',
-    age: 32,
-    email: 'james.anderson@example.com',
-    status: 'Pending',
-  },
-  {
-    id: 8,
-    name: 'Sophia Thomas',
-    age: 27,
-    email: 'sophia.thomas@example.com',
-    status: 'Active',
-  },
-  {
-    id: 9,
-    name: 'Isabella Lee',
-    age: 31,
-    email: 'isabella.lee@example.com',
-    status: 'Inactive',
-  },
-  {
-    id: 10,
-    name: 'David Martinez',
-    age: 36,
-    email: 'david.martinez@example.com',
-    status: 'Active',
-  },
-];
-
-export const columns = [
+const columns = [
   {
     name: 'Block',
-    cell: () => <BlockItem />,
+    cell: (row: any) => {
+      const totalGasUsed = (
+        parseFloat(row.node.totalGasUsed) *
+        10 ** 9
+      ).toString();
+      return (
+        <BlockItem blockId={row.node.header.height} ethValue={totalGasUsed} />
+      );
+    },
     sortable: true,
   },
   {
     name: 'BlockHash',
-    cell: () => (
-      <BlockHashItem
-        hashAddress="sdasjasasnajsnaksnajsnsjansjansasnjansa"
-        width="100px"
-      />
+    cell: (row: any) => (
+      <BlockHashItem hashAddress={row.node.id} width="100px" />
     ),
     sortable: true,
   },
   {
     name: 'Transactions',
-    cell: (row: RowData) => (
-      <div className="font-mono text-sm text-gray-9">{row.age}</div>
+    cell: (row: any) => (
+      <div className="font-mono text-sm text-gray-9">
+        {row.node.header.transactionsCount}
+      </div>
     ),
     sortable: true,
   },
   {
     name: 'Rewards',
-    cell: () => <div className="font-mono text-sm text-gray-9">12</div>,
+    cell: (row: any) => {
+      const mintTransaction = row.node.transactions.find(
+        (trans: any) => trans.mintAmount != null,
+      );
+      return (
+        <div className="font-mono text-sm text-gray-9">
+          {mintTransaction ? mintTransaction.mintAmount : 'No mint amount'}
+        </div>
+      );
+    },
     sortable: false,
   },
   {
     name: 'Validator',
-    cell: () => (
+    cell: (row: any) => (
       <div className="flex items-center justify-center w-full">
-        <BlockValidatorItem hashAddress="asansjasnajsnajsnajsnajsnajsnajsnajsna" />
+        <BlockValidatorItem hashAddress={row.node.producer} />
       </div>
     ),
     sortable: true,
   },
   {
     name: 'Efficiency',
-    cell: () => <BlockEfficiencyItem current={10} progress={44} total={100} />,
+    cell: (row: any) => (
+      <div className="w-[10rem]">
+        <BlockEfficiencyItem current={row.node.totalGasUsed} total={30000000} />
+      </div>
+    ),
     sortable: true,
   },
   {
     name: 'Time',
-    cell: () => <BlockTimeItem time={new Date()} />,
+    cell: (row: any) => {
+      const unixTimestamp = row.node.time.rawUnix;
+      const date = new Date(unixTimestamp * 1000);
+
+      return <BlockTimeItem timeAgo={row.node.time.fromNow} time={date} />;
+    },
     sortable: true,
   },
   {
     name: '',
-    cell: (row: RowData) => (
+    cell: (row: any) => (
       <button
         type="button"
         onClick={() => console.log('Button clicked for:', row.name)}
-        className="px-4 py-[0.4rem] bg-brand text-white dark:text-black rounded font-semibold font-mono"
+        className="px-4 py-[0.4rem] bg-gray-3 hover:text-black hover:bg-brand text-black dark:text-white rounded font-semibold font-mono"
       >
         View
       </button>
@@ -149,14 +93,24 @@ export const columns = [
   },
 ];
 
-function BlocksTable() {
+type BlocksTableProps = {
+  blocks: GQLBlocksQuery['blocks'];
+  onPageChanged: (pageNumber: number) => void;
+  pageCount: number;
+};
+
+function BlocksTable({ blocks, onPageChanged, pageCount }: BlocksTableProps) {
+  const handlePageChanged = (pageNumber: number) => {
+    onPageChanged(pageNumber);
+  };
+
   return (
     <div>
       <GridTable
         columns={columns}
-        data={data}
-        onPageChanged={() => {}}
-        pageCount={2}
+        data={blocks.edges}
+        onPageChanged={handlePageChanged}
+        pageCount={pageCount}
       />
     </div>
   );
