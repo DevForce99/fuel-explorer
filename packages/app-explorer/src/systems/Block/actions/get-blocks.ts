@@ -12,6 +12,7 @@ const schema = z.object({
 });
 
 export const getBlocks = act(schema, async ({ cursor, dir = 'after' }) => {
+  console.log('this is ankit');
   const params = { last: PER_PAGE } as {
     first?: number;
     last?: number;
