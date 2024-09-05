@@ -26,5 +26,6 @@ export const getBlocks = act(schema, async ({ cursor, dir = 'after' }) => {
   }
 
   const { data } = await sdk.blocks(params);
+  console.log('Data returned==>', data);
   return data;
 });
