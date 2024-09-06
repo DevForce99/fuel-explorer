@@ -10,65 +10,85 @@ export const BlocksScreen = () => {
   const [data, setData] = useState<GQLBlocksQuery['blocks'] | undefined>(
     undefined,
   );
+  const [dir, setDir] = useState<'after' | 'before'>('after');
   const [totalPages, setTotalPages] = useState(1);
-  const [currentCursor, setCurrentCursor] = useState<string | null>(null); // Current cursor state
-  const limit = 10; // Assuming limit per page is 10 blocks
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentCursor, setCurrentCursor] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const limit = 10;
 
-  // Calculate total pages based on endCursor
-  const totalPage = () => {
+  const calculateTotalPages = () => {
     if (data?.pageInfo.endCursor) {
       const endCursor = Number(data.pageInfo.endCursor);
-      return Math.ceil(endCursor / limit); // Calculate total pages
+      return Math.ceil(endCursor / limit);
     }
     return 1;
   };
 
-  // Set total pages when data changes
   useEffect(() => {
     if (data) {
-      const totalPageCount = totalPage();
+      const totalPageCount = calculateTotalPages();
       setTotalPages(totalPageCount);
     }
   }, [data]);
 
-  // Fetch blocks with the given cursor
-  const fetchBlockData = async (cursor: string | null = null) => {
+  const fetchBlockData = async (
+    cursor: string | null = null,
+    dir: 'after' | 'before' = 'after',
+  ) => {
+    setLoading(true);
+    setError(null);
     try {
-      console.log('Starting to fetch data with cursor:', cursor);
-      const result = await getBlocks({ cursor });
+      console.log('Fetching data with cursor:', cursor, 'and direction:', dir);
+      const result = await getBlocks({ cursor, dir });
       const blockData = result.blocks;
       setData(blockData);
       console.log(blockData);
-    } catch (error) {
-      console.error('Error fetching block data:', error);
+    } catch (err) {
+      console.error('Error fetching block data:', err);
+      setError('Failed to fetch block data. Please try again later.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Handle page changes
-  const handlePageChanged = (pageNumber: number) => {
-    const newCursor =
-      pageNumber > 0 ? data?.pageInfo.endCursor : data?.pageInfo.startCursor;
-    if (newCursor) {
+  const handlePageChanged = (newPageNumber: number) => {
+    if (data) {
+      const newDir = newPageNumber > currentPage ? 'after' : 'before';
+      setDir(newDir);
+
+      let newCursor: string | null = null;
+      if (newDir === 'after' && data.pageInfo.endCursor) {
+        newCursor = (+data.pageInfo.endCursor + (limit - 1)).toString();
+      } else if (newDir === 'before' && data.pageInfo.startCursor) {
+        newCursor = (+data.pageInfo.startCursor - (limit - 1)).toString();
+      }
+
+      setCurrentPage(newPageNumber);
       setCurrentCursor(newCursor);
+      fetchBlockData(newCursor, newDir);
     }
   };
 
-  // Fetch data when the component mounts and when the cursor changes
   useEffect(() => {
-    fetchBlockData(currentCursor);
-  }, [currentCursor]);
+    fetchBlockData(currentCursor, dir);
+  }, []);
 
   return (
     <VStack>
       <Hero />
-      {data ? (
-        <BlocksTable
-          blocks={data}
-          onPageChanged={handlePageChanged}
-          pageCount={totalPages}
-        />
-      ) : (
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {loading ? (
         <p>Loading blocks...</p>
+      ) : (
+        data && (
+          <BlocksTable
+            blocks={data}
+            onPageChanged={handlePageChanged}
+            pageCount={totalPages}
+          />
+        )
       )}
     </VStack>
   );

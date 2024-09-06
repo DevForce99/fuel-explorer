@@ -14,7 +14,7 @@ export default function BlockItem({ blockId, ethValue }: BlockItemProps) {
             value={blockId}
             className="font-mono font-semibold text-sm "
           >
-            {blockId}
+            #{blockId}
           </Copyable>
         </Box>
       </HStack>

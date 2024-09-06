@@ -22,7 +22,14 @@ export default function BlockEfficiencyItem({
         <HStack className="justify-between">
           {/* Format current and total as M (millions) */}
           <Text className="font-inter text-gray-10 text-[0.7rem]">
-            {currentInMillions.toFixed(1)}M / {totalInMillions.toFixed(1)}M
+            {currentInMillions % 1 === 0
+              ? currentInMillions.toFixed(0)
+              : currentInMillions.toFixed(1)}
+            M /
+            {totalInMillions % 1 === 0
+              ? totalInMillions.toFixed(0)
+              : totalInMillions.toFixed(1)}
+            M
           </Text>
           <Text className="font-inter text-gray-10 text-[0.7rem]">
             ({progress.toFixed(2)}%)
