@@ -9,7 +9,7 @@ import type {
 import BlockDAO from '~/infra/dao/BlockDAO';
 import PaginatedParams from '~/infra/paginator/PaginatedParams';
 
-type Source = GQLBlock;
+type Source = GQLBlock | null;
 type Params = {
   blocks: GQLQueryBlocksArgs;
   block: GQLQueryBlockArgs;

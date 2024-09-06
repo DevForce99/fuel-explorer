@@ -1,9 +1,9 @@
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import BlockDAO from '~/infra/dao/BlockDAO';
 import { env } from './config';
 import { logger } from './core/Logger';
 import { GraphQLServer } from './graphql/GraphQLServer';
+import { BlockResolver } from './graphql/resolvers/BlockResolver';
 import { DatabaseConnection } from './infra/database/DatabaseConnection';
 import { Server } from './infra/server/App';
 
@@ -37,16 +37,21 @@ import { Server } from './infra/server/App';
     io.on('connection', async (socket) => {
       logger.info(`⚡ Client connected: ${socket.id}`);
 
-      const blockDAO = new BlockDAO();
+      const blockResolver = BlockResolver.create();
+      let lastBlockId: string | null = null;
 
-      // Stream TPS data every second
+      // Stream TPS data every second if the block ID changes
       const streamTPS = async () => {
         try {
-          const tpsData = await blockDAO.tps(
-            { cursor: null, direction: 'before' },
-            5,
-          );
-          socket.emit('tps_data', tpsData);
+          // Fetch the TPS data using BlockResolver
+          const tpsData = await blockResolver.Query.tps(null, { last: 5 });
+
+          // Only send the TPS data if the block ID is different from the previous one
+          const latestBlockId = tpsData.nodes[0]?.blockNo;
+          if (latestBlockId && latestBlockId !== lastBlockId) {
+            lastBlockId = latestBlockId;
+            socket.emit('tps_data', tpsData);
+          }
         } catch (error) {
           logger.error('Error streaming TPS data:', error);
         }
@@ -65,7 +70,7 @@ import { Server } from './infra/server/App';
 
     // Graceful shutdown for HTTP and WebSocket servers
     const others = ['SIGINT', 'SIGUSR1', 'SIGUSR2', 'SIGTERM'];
-    //biome-ignore lint/complexity/noForEach: <explanation>
+    //biome-ignore lint/complexity/noForEach: <explanation
     others.forEach((eventType) => {
       process.on(eventType, async (err) => {
         logger.error('❌ GraphQL or WebSocket shutdown error', err);
