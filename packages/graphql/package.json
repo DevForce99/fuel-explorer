@@ -15,7 +15,9 @@
   },
   "typesVersions": {
     "*": {
-      "sdk": ["./src/graphql/generated/sdk.ts"]
+      "sdk": [
+        "./src/graphql/generated/sdk.ts"
+      ]
     }
   },
   "scripts": {
@@ -73,6 +75,7 @@
     "pino-pretty": "11.2.1",
     "pm2": "^5.4.1",
     "shallow-equal-object": "1.1.1",
+    "socket.io": "4.7.5",
     "tai64": "^1.0.0",
     "winston": "3.13.0",
     "xstate": "^5.14.0",
@@ -97,6 +100,7 @@
     "@types/lodash": "4.17.6",
     "@types/node": "^20.14.9",
     "@types/pg": "^8.11.6",
+    "@types/socket.io": "3.0.2",
     "@types/yargs": "17.0.32",
     "chalk": "5.3.0",
     "drizzle-kit": "^0.22.8",
