@@ -54,16 +54,15 @@ export const BlocksScreen = () => {
 
   const handlePageChanged = (newPageNumber: number) => {
     if (data) {
-      const newDir = newPageNumber > currentPage ? 'after' : 'before';
+      const newDir = newPageNumber > currentPage ? 'before' : 'after';
       setDir(newDir);
 
       let newCursor: string | null = null;
-      if (newDir === 'after' && data.pageInfo.endCursor) {
-        newCursor = data.pageInfo.endCursor;
-      } else if (newDir === 'before' && data.pageInfo.startCursor) {
+      if (newDir === 'after' && data.pageInfo.startCursor) {
         newCursor = data.pageInfo.startCursor;
+      } else if (newDir === 'before' && data.pageInfo.endCursor) {
+        newCursor = data.pageInfo.endCursor;
       }
-
       setCurrentPage(newPageNumber);
       setCurrentCursor(newCursor);
     }
