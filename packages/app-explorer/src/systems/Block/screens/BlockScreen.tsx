@@ -7,6 +7,7 @@ import BlocksTable from '../components/BlocksTable/BlocksTable';
 import { Hero } from '../components/Hero/Hero';
 
 export const BlocksScreen = () => {
+  const [currentGridPage, setCurrentGridPage] = useState<number>();
   const [data, setData] = useState<GQLBlocksQuery['blocks'] | undefined>(
     undefined,
   );
@@ -75,6 +76,10 @@ export const BlocksScreen = () => {
     fetchBlockData(currentCursor, dir);
   }, []);
 
+  useEffect(() => {
+    console.log(currentPage);
+  }, [currentPage]);
+
   return (
     <VStack>
       <Hero />
@@ -87,6 +92,8 @@ export const BlocksScreen = () => {
             blocks={data}
             onPageChanged={handlePageChanged}
             pageCount={totalPages}
+            currentPage={currentGridPage}
+            setCurrentPage={setCurrentGridPage}
           />
         )
       )}

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import DataTable, { TableProps, TableColumn } from 'react-data-table-component';
 import ReactPaginate from 'react-paginate';
 import './gridTable.css';
@@ -9,6 +9,8 @@ export interface GridTableProps<T> extends TableProps<T> {
   data: T[];
   pageCount: number;
   onPageChanged: (selectedItem: number) => void;
+  currentPage: number;
+  setCurrentPage: (currentPage: number) => void;
 }
 export type GridTableColumn<T> = TableColumn<T>;
 export const GridTable = <T,>({
@@ -16,10 +18,10 @@ export const GridTable = <T,>({
   data,
   pageCount,
   onPageChanged,
+  setCurrentPage,
+  currentPage,
   ...props
 }: GridTableProps<T>): React.JSX.Element => {
-  const [_currentPage, setCurrentPage] = useState(0);
-
   const customStyles = {
     tableWrapper: {
       style: {
@@ -104,12 +106,14 @@ export const GridTable = <T,>({
         activeClassName={'selected'}
         disabledClassName={'disabled'} // Handles styling for disabled state
         pageLinkClassName={'page-link'} // Ensures consistent page link styling
+        forcePage={currentPage}
       />
     );
   };
 
   const handlePageClick = (data: { selected: number }) => {
-    setCurrentPage(data.selected);
+    console.log('selectedPage', data.selected);
+    setCurrentPage(data.selected); // Set the current page to the selected one
     onPageChanged(data.selected);
   };
 

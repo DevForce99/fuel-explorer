@@ -44,7 +44,10 @@ const columns = [
       );
       return (
         <div className="font-mono text-sm text-gray-9">
-          {mintTransaction ? mintTransaction.mintAmount : 'No mint amount'}
+          {mintTransaction
+            ? mintTransaction.mintAmount / 10 ** 9
+            : 'No mint amount'}{' '}
+          ETH
         </div>
       );
     },
@@ -97,9 +100,17 @@ type BlocksTableProps = {
   blocks: GQLBlocksQuery['blocks'];
   onPageChanged: (pageNumber: number) => void;
   pageCount: number;
+  currentPage: number;
+  setCurrentPage: (currentPage: number) => void;
 };
 
-function BlocksTable({ blocks, onPageChanged, pageCount }: BlocksTableProps) {
+function BlocksTable({
+  blocks,
+  onPageChanged,
+  pageCount,
+  currentPage,
+  setCurrentPage,
+}: BlocksTableProps) {
   const handlePageChanged = (pageNumber: number) => {
     onPageChanged(pageNumber);
   };
@@ -111,6 +122,8 @@ function BlocksTable({ blocks, onPageChanged, pageCount }: BlocksTableProps) {
         data={blocks.edges}
         onPageChanged={handlePageChanged}
         pageCount={pageCount}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
       />
     </div>
   );
