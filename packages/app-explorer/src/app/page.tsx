@@ -11,6 +11,7 @@ import type { TxsRouteProps } from '~/systems/Transactions/types';
 
 export default function Home({ searchParams: { page = '1' } }: TxsRouteProps) {
   const [activeTab, setActiveTab] = useState('Top Tokens');
+  const [currentGridPage, setCurrentGridPage] = useState<number>(0);
   return (
     <>
       <TxsTitle activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -25,6 +26,8 @@ export default function Home({ searchParams: { page = '1' } }: TxsRouteProps) {
             data={data}
             columns={columns}
             pageCount={1}
+            currentPage={currentGridPage}
+            setCurrentPage={setCurrentGridPage}
           />
         ) : activeTab === 'Top NFTs' ? (
           <TxsTokenTable />
