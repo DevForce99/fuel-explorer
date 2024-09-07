@@ -7,7 +7,6 @@ import BlocksTable from '../components/BlocksTable/BlocksTable';
 import { Hero } from '../components/Hero/Hero';
 
 export const BlocksScreen = () => {
-  const [currentGridPage, setCurrentGridPage] = useState<number>();
   const [data, setData] = useState<GQLBlocksQuery['blocks'] | undefined>(
     undefined,
   );
@@ -45,7 +44,6 @@ export const BlocksScreen = () => {
       const result = await getBlocks({ cursor, dir });
       const blockData = result.blocks;
       setData(blockData);
-      console.log(blockData);
     } catch (err) {
       console.error('Error fetching block data:', err);
       setError('Failed to fetch block data. Please try again later.');
@@ -61,20 +59,19 @@ export const BlocksScreen = () => {
 
       let newCursor: string | null = null;
       if (newDir === 'after' && data.pageInfo.endCursor) {
-        newCursor = (+data.pageInfo.endCursor + (limit - 1)).toString();
+        newCursor = data.pageInfo.endCursor;
       } else if (newDir === 'before' && data.pageInfo.startCursor) {
-        newCursor = (+data.pageInfo.startCursor - (limit - 1)).toString();
+        newCursor = data.pageInfo.startCursor;
       }
 
       setCurrentPage(newPageNumber);
       setCurrentCursor(newCursor);
-      fetchBlockData(newCursor, newDir);
     }
   };
 
   useEffect(() => {
     fetchBlockData(currentCursor, dir);
-  }, []);
+  }, [currentCursor, dir]);
 
   useEffect(() => {
     console.log(currentPage);
@@ -92,8 +89,8 @@ export const BlocksScreen = () => {
             blocks={data}
             onPageChanged={handlePageChanged}
             pageCount={totalPages}
-            currentPage={currentGridPage}
-            setCurrentPage={setCurrentGridPage}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
           />
         )
       )}

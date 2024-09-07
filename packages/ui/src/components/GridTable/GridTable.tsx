@@ -13,6 +13,7 @@ export interface GridTableProps<T> extends TableProps<T> {
   setCurrentPage: (currentPage: number) => void;
 }
 export type GridTableColumn<T> = TableColumn<T>;
+
 export const GridTable = <T,>({
   columns,
   data,
@@ -92,6 +93,7 @@ export const GridTable = <T,>({
       },
     },
   };
+
   const Pagination: React.FC = () => {
     return (
       <ReactPaginate
@@ -101,20 +103,19 @@ export const GridTable = <T,>({
         pageCount={pageCount}
         marginPagesDisplayed={2}
         pageRangeDisplayed={5}
-        onPageChange={handlePageClick}
+        onPageChange={(page) => handlePagination(page)}
         containerClassName={'pagination'}
         activeClassName={'selected'}
-        disabledClassName={'disabled'} // Handles styling for disabled state
-        pageLinkClassName={'page-link'} // Ensures consistent page link styling
-        forcePage={currentPage}
+        disabledClassName={'disabled'}
+        pageLinkClassName={'page-link'}
+        forcePage={currentPage !== 0 ? currentPage - 1 : 0}
       />
     );
   };
 
-  const handlePageClick = (data: { selected: number }) => {
-    console.log('selectedPage', data.selected);
-    setCurrentPage(data.selected); // Set the current page to the selected one
-    onPageChanged(data.selected);
+  const handlePagination = (page: any) => {
+    setCurrentPage(page.selected + 1);
+    onPageChanged(page.selected + 1);
   };
 
   return (
