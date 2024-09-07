@@ -1,4 +1,5 @@
 import { GridTable } from '@fuels/ui';
+import { useState } from 'react';
 import NFTHashItem from '../NFTHashItem/NFTHashItem';
 import NFTProfileIcon from '../NFTProfileIcon/NFTProfileIcon';
 import NFTItem from '../NFTitem/NFTitem';
@@ -161,6 +162,7 @@ export const columns = [
 ];
 
 export function NFTsTable() {
+  const [currentGridPage, setCurrentGridPage] = useState<number>(0);
   return (
     <div>
       <GridTable
@@ -168,6 +170,8 @@ export function NFTsTable() {
         data={data}
         onPageChanged={() => {}}
         pageCount={2}
+        currentPage={currentGridPage}
+        setCurrentPage={setCurrentGridPage}
       />
     </div>
   );

@@ -7,7 +7,7 @@ import BlocksTable from '../components/BlocksTable/BlocksTable';
 import { Hero } from '../components/Hero/Hero';
 
 export const BlocksScreen = () => {
-  const [currentGridPage, setCurrentGridPage] = useState<number>();
+  const [currentGridPage, setCurrentGridPage] = useState<number>(0);
   const [data, setData] = useState<GQLBlocksQuery['blocks'] | undefined>(
     undefined,
   );
