@@ -13,20 +13,20 @@
   
   .pagination li a {
     padding: 8px 16px; /* Adjusts padding inside each pagination item */
-    color: #f0f0f0;
-    background-color: rgb(32, 32, 32);
+    color: var(--white-2);
+    background-color: var(--gray-2);
     border-radius: 7px;
     cursor: pointer;
     text-decoration: none;
   }
   
   .pagination li.selected a {
-    background-color: rgba(255, 255, 255, 0.2); /* Slightly lighter background */
+    background-color: var(--gray-7); /* Slightly lighter background */
     font-weight: bold;
   }
   
   .pagination li a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--gray-5);
   }
   
   /* Remove background color for Previous and Next buttons */

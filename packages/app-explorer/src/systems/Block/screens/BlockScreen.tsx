@@ -43,6 +43,7 @@ export const BlocksScreen = () => {
       console.log('Fetching data with cursor:', cursor, 'and direction:', dir);
       const result = await getBlocks({ cursor, dir });
       const blockData = result.blocks;
+      console.log(blockData);
       setData(blockData);
     } catch (err) {
       console.error('Error fetching block data:', err);
