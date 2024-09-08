@@ -21,7 +21,7 @@ const columns = [
     sortable: false,
   },
   {
-    name: 'BlockHash',
+    name: 'Blockhash',
     cell: (row: any) => (
       <BlockHashItem hashAddress={row.node.id} width="100px" />
     ),
