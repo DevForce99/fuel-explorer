@@ -1,18 +1,3 @@
-import { DateHelper } from './date';
-
-interface TransactionNode {
-  __typename: 'TransactionFee';
-  fee: string;
-  timestamp: string;
-}
-
-interface Interval {
-  start: Date;
-  end: Date;
-  count: number; // To track the number of transactions
-  totalFee: number; // To track the total transaction fees
-}
-
 export function getUnitAndInterval(timeRange: string): {
   unit: 'minute' | 'hour' | 'day' | 'month';
   intervalSize: number;
@@ -92,16 +77,11 @@ export function createIntervals(
   endTime: number,
   unit: 'minute' | 'hour' | 'day' | 'month',
   intervalSize: number,
-): Array<{ start: Date; end: Date; count: number; totalFee: number }> {
+): Array<{ start: Date; end: Date }> {
   const roundedStartTime = roundToNearest(startTime, unit);
   const roundedEndTime = roundToNearest(endTime, unit, true);
 
-  const intervals: Array<{
-    start: Date;
-    end: Date;
-    count: number;
-    totalFee: number;
-  }> = [];
+  const intervals: Array<{ start: Date; end: Date }> = [];
 
   let currentTime = roundedStartTime;
 
@@ -112,12 +92,7 @@ export function createIntervals(
       const startInterval = new Date(currentDate);
       currentDate.setUTCMonth(currentDate.getUTCMonth() + intervalSize); // Move by `intervalSize` months
       const endInterval = new Date(currentDate);
-      intervals.push({
-        start: startInterval,
-        end: endInterval,
-        count: 0,
-        totalFee: 0,
-      });
+      intervals.push({ start: startInterval, end: endInterval });
     }
   } else {
     // Handle minute, hour, and day intervals
@@ -132,45 +107,10 @@ export function createIntervals(
     while (currentTime < roundedEndTime) {
       const startInterval = new Date(currentTime);
       const endInterval = new Date(currentTime + intervalDuration);
-      intervals.push({
-        start: startInterval,
-        end: endInterval,
-        count: 0,
-        totalFee: 0,
-      });
+      intervals.push({ start: startInterval, end: endInterval });
       currentTime += intervalDuration;
     }
   }
 
   return intervals;
-}
-
-// Helper to process transactions and map to intervals
-export function processTransactions(
-  nodes: TransactionNode[],
-  intervalMap: Interval[],
-) {
-  nodes.forEach((transaction) => {
-    const transactionTimestamp = Number(
-      DateHelper.tai64toDate(transaction.timestamp),
-    );
-    const transactionFee = Number(transaction.fee);
-
-    // Find the correct interval for the current transaction
-    for (const interval of intervalMap) {
-      const intervalStart = new Date(interval.start).getTime();
-      const intervalEnd = new Date(interval.end).getTime();
-
-      if (
-        transactionTimestamp >= intervalStart &&
-        transactionTimestamp < intervalEnd
-      ) {
-        // Increment count and add the transaction fee to totalFee
-        interval.count += 1;
-        interval.totalFee += transactionFee;
-        break; // Transaction assigned, no need to check further
-      }
-    }
-  });
-  return intervalMap;
 }
