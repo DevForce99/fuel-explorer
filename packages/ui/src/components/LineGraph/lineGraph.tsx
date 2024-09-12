@@ -27,8 +27,10 @@ export interface DataPoint {
 interface LineGraphProps {
   dataProp: any;
   titleProp: string;
-  selectedDays: string;
-  setSelectedDays: (p: string) => void;
+  selectedTimeRange: string;
+  timeRangeOptions: [];
+  onTimeRangeChange: (p: string) => void;
+  valueUnit?: string | null;
 }
 
 const chartConfig = {
@@ -41,8 +43,10 @@ const chartConfig = {
 export const LineGraph: React.FC<LineGraphProps> = ({
   dataProp,
   titleProp,
-  selectedDays,
-  setSelectedDays,
+  selectedTimeRange,
+  timeRangeOptions,
+  onTimeRangeChange,
+  valueUnit,
 }) => {
   const [selectedPoint, setSelectedPoint] = useState<any>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
@@ -74,7 +78,7 @@ export const LineGraph: React.FC<LineGraphProps> = ({
     if (initialData.length > 0) {
       setSelectedPoint(initialData[0]);
     }
-  }, [selectedDays]);
+  }, [selectedTimeRange]);
 
   const handleClick = (data: any) => {
     setSelectedPoint(data);
@@ -87,25 +91,26 @@ export const LineGraph: React.FC<LineGraphProps> = ({
       <div className="mt-1 flex items-center" style={{ fontSize: '0.8rem' }}>
         <div className="text-heading">{titleProp} &nbsp;</div>
         <Select
-          onValueChange={(value) => setSelectedDays(value)}
-          value={selectedDays}
+          onValueChange={(value) => onTimeRangeChange(value)}
+          value={selectedTimeRange}
         >
           <SelectTrigger
             className="px-4 py-0 rounded"
             style={{ fontSize: '0.8rem' }}
           >
-            <div className="text-heading">{selectedDays}</div>
+            <div className="text-heading">{selectedTimeRange}</div>
           </SelectTrigger>
           <SelectContent className="bg-gray-2">
             <SelectGroup>
-              <SelectItem value="null">All time</SelectItem>
-              <SelectItem value="1hr">1 Hr</SelectItem>
-              <SelectItem value="12hr">12 Hr</SelectItem>
-              <SelectItem value="1day">1 Day</SelectItem>
-              <SelectItem value="7days">7 Day</SelectItem>
-              <SelectItem value="14days">14 Day</SelectItem>
-              <SelectItem value="30days">30 Day</SelectItem>
-              <SelectItem value="90days">90 Day</SelectItem>
+              {timeRangeOptions.map((filter) => (
+                <SelectItem
+                  key={filter}
+                  value={filter}
+                  onClick={() => onTimeRangeChange(filter)}
+                >
+                  {filter}
+                </SelectItem>
+              ))}
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -114,7 +119,7 @@ export const LineGraph: React.FC<LineGraphProps> = ({
       <div className="flex-grow my-3 mt-2">
         {selectedPoint ? (
           <h1 className="text-xl font-mono text-heading">
-            {selectedPoint.count}
+            {selectedPoint.count} {valueUnit || ''}
           </h1>
         ) : (
           <h1 className="text-heading text-xl"> &nbsp; </h1>

@@ -1,24 +1,22 @@
 import { StatsHeader } from '../StatsHeader/StatsHeader';
 
-const Hero = () => {
+interface StatsData {
+  titleProp: string;
+  valuesProp: string;
+  timeProp: string;
+}
+
+const Hero = ({ stats }: { stats: StatsData[] }) => {
   return (
     <div className="w-full flex flex-wrap gap-3">
-      <StatsHeader
-        titleProp="Transaction"
-        valuesProp="307, 952 793, 341"
-        timeProp="All Time"
-      />
-      <StatsHeader
-        titleProp="Transaction Per Second (TPS)"
-        valuesProp="3,299"
-        timeProp="Last 1 Hour"
-      />
-      <StatsHeader
-        titleProp="Total Network Fees (ETH)"
-        valuesProp="2,292.777"
-        timeProp="Last 24h"
-      />
-      <StatsHeader titleProp="Blocks" valuesProp="41,098" timeProp="Last 24h" />
+      {stats.map((stat, index) => (
+        <StatsHeader
+          key={index}
+          titleProp={stat.titleProp}
+          valuesProp={stat.valuesProp}
+          timeProp={stat.timeProp}
+        />
+      ))}
     </div>
   );
 };

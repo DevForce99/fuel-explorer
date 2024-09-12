@@ -37,6 +37,71 @@ export function getUnitAndInterval(timeRange: string): {
   }
 }
 
+export enum filterOption {
+  hr1 = '1H',
+  hr12 = '12H',
+  d1 = '1D',
+  d7 = '7D',
+  d14 = '14D',
+  d30 = '30D',
+  d90 = '90D',
+  All = 'All Time',
+}
+export const getFilterOptionByValue = (value: string): filterOption => {
+  console.log('Value is', value);
+  switch (value) {
+    case '1H':
+      return filterOption.hr1;
+
+    case '12H':
+      return filterOption.hr12;
+
+    case '1D':
+      return filterOption.d1;
+
+    case '7D':
+      return filterOption.d7;
+
+    case '14D':
+      return filterOption.d14;
+
+    case '30D':
+      return filterOption.d30;
+
+    case '90D':
+      return filterOption.d90;
+
+    case 'All Time':
+      return filterOption.All;
+
+    default:
+      return filterOption.d30;
+  }
+};
+
+export const mapTimeRangeFilterToDataValue = (value: string): string | null => {
+  switch (value) {
+    case filterOption.hr1:
+      return '1hr';
+    case filterOption.hr12:
+      return '12hr';
+    case filterOption.d1:
+      return '1day';
+    case filterOption.d7:
+      return '7days';
+    case filterOption.d14:
+      return '14days';
+    case filterOption.d30:
+      return '30days';
+    case filterOption.d90:
+      return '90days';
+    case filterOption.All:
+      return null;
+    default:
+      return '30days';
+  }
+};
+
 function roundToNearest(
   time: number,
   unit: 'minute' | 'hour' | 'day' | 'month',
