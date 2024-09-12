@@ -787,6 +787,7 @@ type Query {
   cumulativeTransactionsFeeStatistics(timeFilter: String): CumulativeTransactionFeeConnection!
   accountCreationStatistics(timeFilter: String): CumulativeAccountCreationConnection!
   newAccountStatistics(timeFilter: String): NewAccountStatisticsConnection!
+  cumulativeAccountCreationStatistics(timeFilter: String): CumulativeAccountCreationConnection!
 }
 
 type Receipt {
@@ -799,7 +800,7 @@ type Receipt {
   data: HexString
   digest: Bytes32
   gas: U64
-  gasUsed: U64
+  gasUsed: U64s
   id: ContractId
   is: U64
   len: U64

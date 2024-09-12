@@ -785,6 +785,7 @@ type Query {
   cumulativeTransactionsFeeStatistics(timeFilter: String): CumulativeTransactionFeeConnection!
   accountCreationStatistics(timeFilter: String): CumulativeAccountCreationConnection!
   newAccountStatistics(timeFilter: String): NewAccountStatisticsConnection!
+  cumulativeAccountCreationStatistics(timeFilter: String): CumulativeAccountCreationConnection!
 }
 
 type Receipt {
