@@ -4,113 +4,255 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { tv } from 'tailwind-variants';
 import { getBlockStats } from '../actions/getBlocks';
-import { getTransactionStats } from '../actions/getTransactions';
+import {
+  getCumulativeTransactionStats,
+  getTransactionStats,
+} from '../actions/getTransactions';
 import Hero from '../components/Hero/Hero';
-// import { dummyData } from '../data/dummyData';
+import {
+  filterOption,
+  getFilterOptionByValue,
+  mapTimeRangeFilterToDataValue,
+} from '../utils/utils';
+
+import { DateHelper } from '../utils/date';
 
 export const StatisticsScreen = () => {
   const classes = styles();
-
-  const [allBlocksTimeStamp, setAllBlocksTimeStamp] = useState('null');
   const [newBlocksData, setNewBlocksData] = useState<any[]>([]);
-
-  const [averageBlocksTimeStamp, setAverageBlocksTimeStamp] = useState('null');
   const [averageBlocksData, setAverageBlocksData] = useState<any[]>([]);
-
-  const [dailyTransactionsTimeStamp, setDailyTransactionsTimeStamp] =
-    useState('null');
+  const [stats, setStats] = useState<any[]>([]);
+  const [cumulativeTransactionsData, setCumulativeTransactionsData] = useState<
+    any[]
+  >([]);
   const [dailyTransactionsData, setDailyTransactionsData] = useState<any[]>([]);
+  const [cumulativeTransactionsFeeData, setCumulativeTransactionsFeeData] =
+    useState<any[]>([]);
 
-  const [averageTransactionsTimeStamp, setAverageTransactionsTimeStamp] =
-    useState('null');
+  const [blockTimeFilter, setBlockTimeFilter] = useState<filterOption>(
+    filterOption.All,
+  );
+  const [blockAvgTimeFilter, setblockAvgTimeFilter] = useState<filterOption>(
+    filterOption.All,
+  );
   const [averageTransactionsData, setAverageTransactionsData] = useState<any[]>(
     [],
   );
 
-  const getBlockStatistics = async () => {
-    const data: any = await getBlockStats({
-      timeFilter: allBlocksTimeStamp === 'null' ? null : allBlocksTimeStamp,
-    });
-    const transformedData = data
-      .map((item: any) => ({
-        start: item.start,
-        count: item.count,
-      }))
-      .reverse();
-    console.log(transformedData);
-    setNewBlocksData(transformedData);
+  const [cumulativeTransactionFilter, setCumulativeTransactionFilter] =
+    useState<filterOption>(filterOption.All);
+  const [cumulativeTransactionFeeFilter, setCumulativeTransactionFeeFilter] =
+    useState<filterOption>(filterOption.All);
+  const [averageTransactionsFilter, setAverageTransactionsFilter] =
+    useState<filterOption>(filterOption.All);
+
+  const [dailyTransactionsFilter, setdailyTransactionsFilter] =
+    useState<filterOption>(filterOption.All);
+
+  const getBlockStatistics = async (selectedFilter: filterOption) => {
+    const displayValue = mapTimeRangeFilterToDataValue(selectedFilter);
+
+    try {
+      const data: any = await getBlockStats({
+        timeFilter: displayValue,
+      });
+
+      if (!Array.isArray(data)) {
+        throw new Error('Expected data to be an array');
+      }
+
+      const transformedData = data
+        .map((item: any) => ({
+          start: item.start,
+          count: item.count,
+          totalRewards: item.totalRewards,
+        }))
+        .reverse();
+      return transformedData;
+    } catch (error) {
+      console.error('Error fetching or processing block statistics:', error);
+      return [];
+    }
+  };
+
+  const getStats = async () => {
+    let totalTransactions = 0;
+    let totalNetworkFee = 0;
+    let totalBlock = 0;
+    const transactions: any = await getTransactionStats({ timeFilter: null });
+    const blocks: any = await getBlockStats({ timeFilter: null });
+    console.log('Stats transactions', transactions);
+    if (transactions) {
+      transactions.map((transaction: any) => {
+        totalTransactions += transaction.count;
+        totalNetworkFee += transaction.totalFee;
+      });
+    }
+    console.log('bloc transactions', blocks);
+    if (blocks) {
+      blocks.map((block: any) => {
+        totalBlock += block.count;
+      });
+    }
+    return [
+      {
+        titleProp: 'Transaction',
+        valuesProp: totalTransactions,
+        timeProp: 'All Time',
+      },
+      {
+        titleProp: 'Transaction Per Second (TPS)',
+        valuesProp: '3,299',
+        timeProp: 'Last 1 Hour',
+      },
+      {
+        titleProp: 'Total Network Fees (ETH)',
+        valuesProp: totalNetworkFee,
+        timeProp: 'Last 24h',
+      },
+      { titleProp: 'Blocks', valuesProp: totalBlock, timeProp: 'All Time' },
+    ];
   };
 
   useEffect(() => {
-    getBlockStatistics();
-  }, [allBlocksTimeStamp]);
-
-  const getAverageBlockStatistics = async () => {
-    const data: any = await getBlockStats({
-      timeFilter:
-        averageBlocksTimeStamp === 'null' ? null : averageBlocksTimeStamp,
+    getStats().then((value: any) => {
+      setStats(value);
     });
-    console.log(data);
-    const transformedData = data
-      .map((item: any) => ({
-        start: item.start,
-        count: Number.isNaN(item.totalRewards / item.count)
-          ? 0
-          : item.totalRewards / item.count,
-      }))
-      .reverse();
-    console.log(transformedData);
-    setAverageBlocksData(transformedData);
+  }, [stats]);
+
+  const getTransactionStatistics = async (selectedFilter: filterOption) => {
+    const displayValue = mapTimeRangeFilterToDataValue(selectedFilter);
+    try {
+      const data: any = await getTransactionStats({
+        timeFilter: displayValue,
+      });
+
+      if (!Array.isArray(data)) {
+        throw new Error('Expected data to be an array');
+      }
+      const transformedData = data
+        .map((item: any) => ({
+          start: item.start,
+          count: item.count,
+          totalRewards: item.totalFee,
+        }))
+        .reverse();
+      return transformedData;
+    } catch (error) {
+      console.error('Error fetching or processing block statistics:', error);
+      return [];
+    }
+  };
+  const getCumulativeTransactionStatistics = async (
+    selectedFilter: filterOption,
+  ) => {
+    const displayValue = mapTimeRangeFilterToDataValue(selectedFilter);
+    try {
+      const data: any = await getCumulativeTransactionStats({
+        timeFilter: displayValue,
+      });
+      console.log(data);
+      if (!Array.isArray(data?.transactions)) {
+        throw new Error('Expected data to be an array');
+      }
+      const transformedData = data.transactions
+        .map((item: any) => ({
+          start: item.start,
+          count: item.count,
+          rewards: item.totalFee,
+        }))
+        .reverse();
+      transformedData.push({
+        start: DateHelper.getPreviousDayDate(),
+        count: 0,
+        rewards: 0,
+      });
+      console.log('Transformed Data is', transformedData);
+      return transformedData;
+    } catch (error) {
+      console.error('Error fetching or processing block statistics:', error);
+      return [];
+    }
   };
 
   useEffect(() => {
-    getAverageBlockStatistics();
-  }, [averageBlocksTimeStamp]);
-
-  const getTransactionStatistics = async () => {
-    const data: any = await getTransactionStats({
-      timeFilter:
-        dailyTransactionsTimeStamp === 'null'
-          ? null
-          : dailyTransactionsTimeStamp,
+    getBlockStatistics(blockTimeFilter).then((value: any) => {
+      setNewBlocksData(value);
     });
-    const transformedData = data
-      .map((item: any) => ({
-        start: item.start,
-        count: item.count,
-      }))
-      .reverse();
-    console.log(transformedData);
-    setDailyTransactionsData(transformedData);
-  };
+  }, [blockTimeFilter]);
 
   useEffect(() => {
-    getTransactionStatistics();
-  }, [dailyTransactionsTimeStamp]);
-
-  const getAverageTransactionStatistics = async () => {
-    const data: any = await getTransactionStats({
-      timeFilter:
-        averageTransactionsTimeStamp === 'null'
-          ? null
-          : averageTransactionsTimeStamp,
+    getTransactionStatistics(dailyTransactionsFilter).then((value: any) => {
+      console.log('Here is the value', value);
+      setDailyTransactionsData(value);
     });
-    console.log(data);
-    const transformedData = data
-      .map((item: any) => ({
-        start: item.start,
-        count: Number.isNaN(item.totalFee / item.count)
-          ? 0
-          : item.totalFee / item.count,
-      }))
-      .reverse();
-    console.log(transformedData);
-    setAverageTransactionsData(transformedData);
-  };
+  }, [dailyTransactionsFilter]);
 
   useEffect(() => {
-    getAverageTransactionStatistics();
-  }, [averageTransactionsTimeStamp]);
+    getTransactionStatistics(averageTransactionsFilter).then((value: any) => {
+      console.log('Here is the average transaction data', value);
+      const transformedData = Array.isArray(value)
+        ? value.map((item: any) => {
+            const totalFeeSpent = Number(item.totalRewards) || 0;
+            const totalCount = Number(item.count) || 1;
+            const totalFeeInEth = totalFeeSpent / 10 ** 9;
+            const average = totalCount ? totalFeeInEth / totalCount : 0;
+            return {
+              start: item.start,
+              count: average.toFixed(9),
+            };
+          })
+        : [];
+
+      setAverageTransactionsData(transformedData);
+    });
+  }, [averageTransactionsFilter]);
+
+  useEffect(() => {
+    getCumulativeTransactionStatistics(cumulativeTransactionFilter).then(
+      (value: any) => {
+        console.log('Here is the value', value);
+        setCumulativeTransactionsData(value);
+      },
+    );
+  }, [cumulativeTransactionFilter]);
+
+  useEffect(() => {
+    getCumulativeTransactionStatistics(cumulativeTransactionFeeFilter).then(
+      (value: any) => {
+        console.log('Transactional Fee value', value);
+        const transformedData = Array.isArray(value)
+          ? value.map((item: any) => {
+              const totalFeeSpent = Number(item.rewards) || 0;
+              const averageRewardInETH = totalFeeSpent / 10 ** 9;
+              return {
+                start: item.start,
+                count: averageRewardInETH.toFixed(9),
+              };
+            })
+          : [];
+        setCumulativeTransactionsFeeData(transformedData);
+      },
+    );
+  }, [cumulativeTransactionFeeFilter]);
+
+  //For Average Block
+  useEffect(() => {
+    getBlockStatistics(blockAvgTimeFilter).then((value: any) => {
+      const transformedData = Array.isArray(value)
+        ? value.map((item: any) => {
+            const count = Number(item.count) || 1;
+            const averageReward = (Number(item.totalRewards) || 0) / count;
+            const averageRewardInETH = averageReward / 10 ** 9;
+            return {
+              start: item.start,
+              count: averageRewardInETH.toFixed(9),
+            };
+          })
+        : [];
+      setAverageBlocksData(transformedData);
+    });
+  }, [blockAvgTimeFilter]);
 
   return (
     <Theme appearance="light">
@@ -121,7 +263,7 @@ export const StatisticsScreen = () => {
               Statistics
             </Heading>
             <div className="pb-6">
-              <Hero />
+              <Hero stats={stats} />
             </div>
           </VStack>
 
@@ -133,14 +275,22 @@ export const StatisticsScreen = () => {
               <LineGraph
                 dataProp={newBlocksData}
                 titleProp={'New Block'}
-                selectedDays={allBlocksTimeStamp}
-                setSelectedDays={setAllBlocksTimeStamp}
+                selectedTimeRange={blockTimeFilter}
+                timeRangeOptions={Object.values(filterOption) as []}
+                onTimeRangeChange={(days) => {
+                  setBlockTimeFilter(getFilterOptionByValue(days));
+                }}
               />
+
               <LineGraph
                 dataProp={averageBlocksData}
                 titleProp={'Avg. Block Reward'}
-                selectedDays={averageBlocksTimeStamp}
-                setSelectedDays={setAverageBlocksTimeStamp}
+                selectedTimeRange={blockAvgTimeFilter}
+                timeRangeOptions={Object.values(filterOption) as []}
+                valueUnit={'ETH'}
+                onTimeRangeChange={(days) => {
+                  setblockAvgTimeFilter(getFilterOptionByValue(days));
+                }}
               />
             </Grid>
           </div>
@@ -151,28 +301,44 @@ export const StatisticsScreen = () => {
             </h2>
             <Grid className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <LineGraph
-                dataProp={dailyTransactionsData}
-                titleProp={'Total Transactions (Cumilative)'}
-                selectedDays={dailyTransactionsTimeStamp}
-                setSelectedDays={setDailyTransactionsTimeStamp}
+                dataProp={cumulativeTransactionsData}
+                titleProp={'Total Transactions (Cumulative)'}
+                selectedTimeRange={cumulativeTransactionFilter}
+                timeRangeOptions={Object.values(filterOption) as []}
+                onTimeRangeChange={(days) => {
+                  setCumulativeTransactionFilter(getFilterOptionByValue(days));
+                }}
               />
               <LineGraph
                 dataProp={dailyTransactionsData}
                 titleProp={'Daily Transactions'}
-                selectedDays={dailyTransactionsTimeStamp}
-                setSelectedDays={setDailyTransactionsTimeStamp}
+                selectedTimeRange={dailyTransactionsFilter}
+                timeRangeOptions={Object.values(filterOption) as []}
+                onTimeRangeChange={(days) => {
+                  setdailyTransactionsFilter(getFilterOptionByValue(days));
+                }}
               />
               <LineGraph
-                dataProp={averageTransactionsData}
+                dataProp={cumulativeTransactionsFeeData}
+                valueUnit={'ETH'}
                 titleProp={'Transaction Fee Spent (Cumilative)'}
-                selectedDays={averageTransactionsTimeStamp}
-                setSelectedDays={setAverageTransactionsTimeStamp}
+                timeRangeOptions={Object.values(filterOption) as []}
+                selectedTimeRange={cumulativeTransactionFeeFilter}
+                onTimeRangeChange={(days) => {
+                  setCumulativeTransactionFeeFilter(
+                    getFilterOptionByValue(days),
+                  );
+                }}
               />
               <LineGraph
                 dataProp={averageTransactionsData}
                 titleProp={'Avg. Transactions Fee'}
-                selectedDays={averageTransactionsTimeStamp}
-                setSelectedDays={setAverageTransactionsTimeStamp}
+                valueUnit={'ETH'}
+                timeRangeOptions={Object.values(filterOption) as []}
+                selectedTimeRange={averageTransactionsFilter}
+                onTimeRangeChange={(days) => {
+                  setAverageTransactionsFilter(getFilterOptionByValue(days));
+                }}
               />
             </Grid>
           </div>
@@ -181,7 +347,7 @@ export const StatisticsScreen = () => {
             <h2 className="font-mono" style={{ fontSize: '1.5rem' }}>
               Accounts
             </h2>
-            <Grid className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* <Grid className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <LineGraph
                 dataProp={averageTransactionsData}
                 titleProp={'Total Active (Cumilative)'}
@@ -200,14 +366,14 @@ export const StatisticsScreen = () => {
                 selectedDays={averageTransactionsTimeStamp}
                 setSelectedDays={setAverageTransactionsTimeStamp}
               />
-            </Grid>
+            </Grid> */}
           </div>
 
           <div className="text-heading text-md font-mono my-20">
             <h2 className="font-mono" style={{ fontSize: '1.5rem' }}>
               Tokens
             </h2>
-            <Grid className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* <Grid className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <LineGraph
                 dataProp={averageTransactionsData}
                 titleProp={'Total Tokens (Cumilative)'}
@@ -220,14 +386,14 @@ export const StatisticsScreen = () => {
                 selectedDays={averageTransactionsTimeStamp}
                 setSelectedDays={setAverageTransactionsTimeStamp}
               />
-            </Grid>
+            </Grid> */}
           </div>
 
           <div className="text-heading text-md font-mono my-10">
             <h2 className="font-mono" style={{ fontSize: '1.5rem' }}>
               NFTs
             </h2>
-            <Grid className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* <Grid className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <LineGraph
                 dataProp={averageTransactionsData}
                 titleProp={'Total NFTs (Cumilative)'}
@@ -240,7 +406,7 @@ export const StatisticsScreen = () => {
                 selectedDays={averageTransactionsTimeStamp}
                 setSelectedDays={setAverageTransactionsTimeStamp}
               />
-            </Grid>
+            </Grid> */}
           </div>
         </Container>
       </Box>
