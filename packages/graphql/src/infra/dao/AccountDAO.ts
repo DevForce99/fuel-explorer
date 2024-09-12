@@ -1,7 +1,9 @@
+import { DateHelper } from '~/core/Date';
 import { AccountEntity } from '../../domain/Account/AccountEntity';
 import { DatabaseConnection } from '../database/DatabaseConnection';
+import { getTimeInterval } from './utils';
 
-export class AccountDAO {
+export default class AccountDAO {
   private databaseConnection: DatabaseConnection;
 
   constructor() {
@@ -107,5 +109,70 @@ export class AccountDAO {
     );
 
     return result.length ? result[0].data : null;
+  }
+
+  async accountCreationStatistics(timeFilter: string) {
+    const _interval = getTimeInterval(timeFilter);
+
+    let query = `
+      SELECT 
+        (data->'first_transaction_timestamp')::bigint AS timestamp
+      FROM indexer.accounts
+    `;
+
+    let intervalStartTimeTai64 = '';
+
+    if (_interval) {
+      const intervalStartTimeInMilliseconds = Date.now() - _interval;
+      const intervalStartTimeDate = new Date(intervalStartTimeInMilliseconds);
+      intervalStartTimeTai64 = DateHelper.dateToTai64(intervalStartTimeDate);
+      query += `WHERE (data->'first_transaction_timestamp')::bigint >= ${intervalStartTimeTai64}`;
+    }
+
+    query += ' ORDER BY timestamp asc';
+
+    const accountsData = await this.databaseConnection.query(query, []);
+
+    // Calculate accountOffset: Accounts created before the first timestamp in the interval
+    const offsetQuery = `
+      SELECT COUNT(*) as accountOffset 
+      FROM indexer.accounts
+      WHERE (data->'first_transaction_timestamp')::bigint < ${intervalStartTimeTai64}
+    `;
+    const offsetResult = await this.databaseConnection.query(offsetQuery, []);
+
+    return {
+      nodes: accountsData,
+      accountOffset: offsetResult[0].accountoffset || 0,
+    };
+  }
+
+  async newAccountStatistics(timeFilter: string) {
+    const _interval = getTimeInterval(timeFilter);
+
+    let query = `
+      SELECT 
+        COUNT(*) as count,
+        (data->'first_transaction_timestamp')::bigint AS timestamp
+      FROM indexer.accounts
+    `;
+
+    if (_interval) {
+      const intervalStartTimeInMilliseconds = Date.now() - _interval;
+      const intervalStartTimeDate = new Date(intervalStartTimeInMilliseconds);
+      const intervalStartTimeTai64 = DateHelper.dateToTai64(
+        intervalStartTimeDate,
+      );
+      query += `WHERE (data->'first_transaction_timestamp')::bigint >= ${intervalStartTimeTai64}`;
+    }
+
+    query += ' ORDER BY timestamp asc';
+
+    const accountsData = await this.databaseConnection.query(query, []);
+
+    return {
+      nodes: accountsData,
+      count: accountsData.length,
+    };
   }
 }
