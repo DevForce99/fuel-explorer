@@ -2,6 +2,7 @@ import type {
   GQLQueryTransactionArgs,
   GQLQueryTransactionsArgs,
   GQLQueryTransactionsByOwnerArgs,
+  GQLQueryTransactionsFeeStatisticsArgs,
   GQLTransaction,
 } from '~/graphql/generated/sdk-provider';
 import TransactionDAO from '~/infra/dao/TransactionDAO';
@@ -12,6 +13,7 @@ type Params = {
   transaction: GQLQueryTransactionArgs;
   transactions: GQLQueryTransactionsArgs;
   transactionByOwner: GQLQueryTransactionsByOwnerArgs;
+  transactionFees: GQLQueryTransactionsFeeStatisticsArgs;
 };
 
 export class TransactionResolver {
@@ -22,6 +24,9 @@ export class TransactionResolver {
         transaction: resolvers.transaction,
         transactions: resolvers.transactions,
         transactionsByOwner: resolvers.transactionsByOwner,
+        transactionsFeeStatistics: resolvers.transactionsFeeStatistics,
+        cumulativeTransactionsFeeStatistics:
+          resolvers.cumulativeTransactionsFeeStatistics,
       },
     };
   }
@@ -49,5 +54,34 @@ export class TransactionResolver {
       paginatedParams,
     );
     return transactions;
+  }
+
+  async transactionsFeeStatistics(
+    _: Source,
+    params: Params['transactionFees'],
+  ) {
+    const transactionDAO = new TransactionDAO();
+    const transactions = await transactionDAO.transactionsFeeStatistics(
+      params.timeFilter ? params.timeFilter : '',
+    );
+    return transactions;
+  }
+
+  async cumulativeTransactionsFeeStatistics(
+    _: Source,
+    params: Params['transactionFees'],
+  ) {
+    const transactionDAO = new TransactionDAO();
+    const transactions = await transactionDAO.transactionsFeeStatistics(
+      params.timeFilter ? params.timeFilter : '',
+    );
+    const transactionOffset = await transactionDAO.transactionsOffset(
+      params.timeFilter ? params.timeFilter : '',
+    );
+    const results = {
+      nodes: transactions.nodes,
+      transactionOffset: transactionOffset.transactionOffset,
+    };
+    return results;
   }
 }
