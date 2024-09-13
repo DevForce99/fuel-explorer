@@ -28,6 +28,7 @@ interface LineGraphProps {
   dataProp: any;
   titleProp: string;
   selectedTimeRange: string;
+  defaultSelectedValue?: string | null;
   timeRangeOptions: [];
   onTimeRangeChange: (p: string) => void;
   valueUnit?: string | null;
@@ -47,8 +48,9 @@ export const LineGraph: React.FC<LineGraphProps> = ({
   timeRangeOptions,
   onTimeRangeChange,
   valueUnit,
+  defaultSelectedValue,
 }) => {
-  const [selectedPoint, setSelectedPoint] = useState<any>(null);
+  const [selectedPoint, setSelectedPoint] = useState<any>(defaultSelectedValue);
   const [containerWidth, setContainerWidth] = useState<number>(0);
 
   const containerRef = useRef<HTMLDivElement>(null);

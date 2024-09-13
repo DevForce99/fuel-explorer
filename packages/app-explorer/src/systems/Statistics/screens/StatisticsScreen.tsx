@@ -15,8 +15,6 @@ import {
   mapTimeRangeFilterToDataValue,
 } from '../utils/utils';
 
-import { DateHelper } from '../utils/date';
-
 export const StatisticsScreen = () => {
   const classes = styles();
   const [newBlocksData, setNewBlocksData] = useState<any[]>([]);
@@ -118,7 +116,7 @@ export const StatisticsScreen = () => {
     getStats().then((value: any) => {
       setStats(value);
     });
-  }, [stats]);
+  }, []);
 
   const getTransactionStatistics = async (selectedFilter: filterOption) => {
     const displayValue = mapTimeRangeFilterToDataValue(selectedFilter);
@@ -158,15 +156,10 @@ export const StatisticsScreen = () => {
       const transformedData = data.transactions
         .map((item: any) => ({
           start: item.start,
-          count: item.count,
+          count: item.count + data.offset,
           rewards: item.totalFee,
         }))
         .reverse();
-      transformedData.push({
-        start: DateHelper.getPreviousDayDate(),
-        count: 0,
-        rewards: 0,
-      });
       console.log('Transformed Data is', transformedData);
       return transformedData;
     } catch (error) {
@@ -259,9 +252,7 @@ export const StatisticsScreen = () => {
       <Box className={classes.root()}>
         <Container className={classes.container()}>
           <VStack>
-            <Heading as="h1" className={classes.title()}>
-              Statistics
-            </Heading>
+            <Heading className={classes.title()}>Statistics</Heading>
             <div className="pb-6">
               <Hero stats={stats} />
             </div>
@@ -275,13 +266,13 @@ export const StatisticsScreen = () => {
               <LineGraph
                 dataProp={newBlocksData}
                 titleProp={'New Block'}
+                defaultSelectedValue={newBlocksData[0]}
                 selectedTimeRange={blockTimeFilter}
                 timeRangeOptions={Object.values(filterOption) as []}
                 onTimeRangeChange={(days) => {
                   setBlockTimeFilter(getFilterOptionByValue(days));
                 }}
               />
-
               <LineGraph
                 dataProp={averageBlocksData}
                 titleProp={'Avg. Block Reward'}
@@ -321,7 +312,7 @@ export const StatisticsScreen = () => {
               <LineGraph
                 dataProp={cumulativeTransactionsFeeData}
                 valueUnit={'ETH'}
-                titleProp={'Transaction Fee Spent (Cumilative)'}
+                titleProp={'Daily Transaction Fee Spent (Cumilative)'}
                 timeRangeOptions={Object.values(filterOption) as []}
                 selectedTimeRange={cumulativeTransactionFeeFilter}
                 onTimeRangeChange={(days) => {
@@ -424,7 +415,7 @@ const styles = tv({
     ],
     input: 'w-full tablet:w-[400px]',
     title: [
-      'text-2xl leading-snug text-heading justify-center',
+      'text-2xl leading-snug text-heading justify-center font-mono font-bold',
       'tablet:text-left tablet:text-4xl tablet:justify-start',
     ],
     subtitle: ['text-base mb-8 justify-center'],

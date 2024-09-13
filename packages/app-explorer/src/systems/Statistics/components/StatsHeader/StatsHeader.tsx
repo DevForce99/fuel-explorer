@@ -13,7 +13,7 @@ export const StatsHeader: React.FC<LineGraphProps> = ({
 }) => {
   return (
     <RoundedContainer className="w-[17rem]">
-      <p className="text-heading" style={{ fontSize: '1rem' }}>
+      <p className="text-heading font-mono" style={{ fontSize: '0.75rem' }}>
         {titleProp}
       </p>
       <h1 className="text-heading -mb-3 -mt-1" style={{ fontSize: '1.5rem' }}>
