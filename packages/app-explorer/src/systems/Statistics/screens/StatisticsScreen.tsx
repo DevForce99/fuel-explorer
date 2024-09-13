@@ -266,7 +266,7 @@ export const StatisticsScreen = () => {
               <LineGraph
                 dataProp={newBlocksData}
                 titleProp={'New Block'}
-                defaultSelectedValue={newBlocksData[0]}
+                defaultSelectedValue={newBlocksData[0]?.count}
                 selectedTimeRange={blockTimeFilter}
                 timeRangeOptions={Object.values(filterOption) as []}
                 onTimeRangeChange={(days) => {
@@ -277,6 +277,7 @@ export const StatisticsScreen = () => {
                 dataProp={averageBlocksData}
                 titleProp={'Avg. Block Reward'}
                 selectedTimeRange={blockAvgTimeFilter}
+                defaultSelectedValue={averageBlocksData[0]?.count}
                 timeRangeOptions={Object.values(filterOption) as []}
                 valueUnit={'ETH'}
                 onTimeRangeChange={(days) => {
@@ -295,6 +296,7 @@ export const StatisticsScreen = () => {
                 dataProp={cumulativeTransactionsData}
                 titleProp={'Total Transactions (Cumulative)'}
                 selectedTimeRange={cumulativeTransactionFilter}
+                defaultSelectedValue={cumulativeTransactionsData[0]?.count}
                 timeRangeOptions={Object.values(filterOption) as []}
                 onTimeRangeChange={(days) => {
                   setCumulativeTransactionFilter(getFilterOptionByValue(days));
@@ -304,6 +306,7 @@ export const StatisticsScreen = () => {
                 dataProp={dailyTransactionsData}
                 titleProp={'Daily Transactions'}
                 selectedTimeRange={dailyTransactionsFilter}
+                defaultSelectedValue={dailyTransactionsData[0]?.count}
                 timeRangeOptions={Object.values(filterOption) as []}
                 onTimeRangeChange={(days) => {
                   setdailyTransactionsFilter(getFilterOptionByValue(days));
@@ -315,6 +318,7 @@ export const StatisticsScreen = () => {
                 titleProp={'Daily Transaction Fee Spent (Cumilative)'}
                 timeRangeOptions={Object.values(filterOption) as []}
                 selectedTimeRange={cumulativeTransactionFeeFilter}
+                defaultSelectedValue={cumulativeTransactionsFeeData[0]?.count}
                 onTimeRangeChange={(days) => {
                   setCumulativeTransactionFeeFilter(
                     getFilterOptionByValue(days),
@@ -327,6 +331,7 @@ export const StatisticsScreen = () => {
                 valueUnit={'ETH'}
                 timeRangeOptions={Object.values(filterOption) as []}
                 selectedTimeRange={averageTransactionsFilter}
+                defaultSelectedValue={averageTransactionsData[0]?.count}
                 onTimeRangeChange={(days) => {
                   setAverageTransactionsFilter(getFilterOptionByValue(days));
                 }}
@@ -407,15 +412,13 @@ export const StatisticsScreen = () => {
 
 const styles = tv({
   slots: {
-    root: 'overflow-clip relative w-full border-border bg-gray-3 dark:bg-gray-1',
+    root: 'overflow-clip relative w-full border-border bg-white dark:bg-gray-1',
     container: [
-      // 'z-20 relative py-8 pt-6 px-8 tablet:pt-18 tablet:px-10',
-      // 'tablet:max-laptop:max-w-[500px] [&_.rt-ContainerInner]:p-2',
       ' [&_.rt-ContainerInner]:tablet:max-laptop:bg-opacity-60 [&_.rt-ContainerInner]:tablet:max-laptop:rounded-lg [&_.rt-ContainerInner]:tablet:max-laptop:shadow-2xl',
     ],
     input: 'w-full tablet:w-[400px]',
     title: [
-      'text-2xl leading-snug text-heading justify-center font-mono font-bold',
+      'text-2xl leading-snug text-heading justify-center',
       'tablet:text-left tablet:text-4xl tablet:justify-start',
     ],
     subtitle: ['text-base mb-8 justify-center'],

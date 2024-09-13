@@ -113,3 +113,7 @@ module.exports.transactionsFeeStatistics = fs.readFileSync(
   path.join(__dirname, 'transactionsFeeStatistics.graphql'),
   'utf8',
 );
+module.exports.cumulativeTransactionsFeeStatistics = fs.readFileSync(
+  path.join(__dirname, 'cumulativeTransactionsFeeStatistics.graphql'),
+  'utf8',
+);

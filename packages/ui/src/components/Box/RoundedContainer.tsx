@@ -8,7 +8,7 @@ export type RoundedContainerProps = WithAsProps & PropsOf<typeof RadixBox>;
 
 const styles = tv({
   slots: {
-    root: 'rounded-[13px] p-4 bg-white dark:bg-card-bg',
+    root: 'rounded-[13px] p-4 bg-gray-2 dark:bg-card-bg',
   },
 });
 

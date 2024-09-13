@@ -296,6 +296,13 @@ export enum GQLContractParametersVersion {
   V1 = 'V1',
 }
 
+export type GQLCumulativeTransactionFeeConnection = {
+  __typename: 'CumulativeTransactionFeeConnection';
+  /** A list of nodes. */
+  nodes?: Maybe<Array<GQLTransactionFee>>;
+  transactionOffset: Scalars['U64']['output'];
+};
+
 export type GQLDependentCost = GQLHeavyOperation | GQLLightOperation;
 
 export type GQLDryRunFailureStatus = {
@@ -978,6 +985,7 @@ export type GQLQuery = {
   contractBalance: GQLContractBalance;
   contractBalances: GQLContractBalanceConnection;
   contracts: GQLContractConnection;
+  cumulativeTransactionsFeeStatistics: GQLCumulativeTransactionFeeConnection;
   estimateGasPrice: GQLEstimateGasPrice;
   /** Estimate the predicate gas for the provided transaction */
   estimatePredicates: GQLTransaction;
@@ -1071,6 +1079,10 @@ export type GQLQueryContractsArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type GQLQueryCumulativeTransactionsFeeStatisticsArgs = {
+  timeFilter?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type GQLQueryEstimateGasPriceArgs = {
@@ -3535,6 +3547,23 @@ export type GQLContractBalancesQuery = {
   };
 };
 
+export type GQLCumulativeTransactionsFeeStatisticsQueryVariables = Exact<{
+  timeFilter?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+export type GQLCumulativeTransactionsFeeStatisticsQuery = {
+  __typename: 'Query';
+  cumulativeTransactionsFeeStatistics: {
+    __typename: 'CumulativeTransactionFeeConnection';
+    transactionOffset: string;
+    nodes?: Array<{
+      __typename: 'TransactionFee';
+      fee: string;
+      timestamp: string;
+    }> | null;
+  };
+};
+
 export type GQLNodeInfoQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GQLNodeInfoQuery = {
@@ -5294,6 +5323,17 @@ export const ContractBalancesDocument = gql`
   }
 }
     ${ContractBalanceConnectionNodeFragmentDoc}`;
+export const CumulativeTransactionsFeeStatisticsDocument = gql`
+    query cumulativeTransactionsFeeStatistics($timeFilter: String) {
+  cumulativeTransactionsFeeStatistics(timeFilter: $timeFilter) {
+    nodes {
+      fee
+      timestamp
+    }
+    transactionOffset
+  }
+}
+    `;
 export const NodeInfoDocument = gql`
     query nodeInfo {
   nodeInfo {
@@ -5348,6 +5388,9 @@ const CoinsDocumentString = print(CoinsDocument);
 const ContractDocumentString = print(ContractDocument);
 const ContractBalanceDocumentString = print(ContractBalanceDocument);
 const ContractBalancesDocumentString = print(ContractBalancesDocument);
+const CumulativeTransactionsFeeStatisticsDocumentString = print(
+  CumulativeTransactionsFeeStatisticsDocument,
+);
 const NodeInfoDocumentString = print(NodeInfoDocument);
 const TransactionsFeeStatisticsDocumentString = print(
   TransactionsFeeStatisticsDocument,
@@ -5547,6 +5590,28 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders },
           ),
         'contractBalances',
+        'query',
+        variables,
+      );
+    },
+    cumulativeTransactionsFeeStatistics(
+      variables?: GQLCumulativeTransactionsFeeStatisticsQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+    ): Promise<{
+      data: GQLCumulativeTransactionsFeeStatisticsQuery;
+      errors?: GraphQLError[];
+      extensions?: any;
+      headers: Headers;
+      status: number;
+    }> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.rawRequest<GQLCumulativeTransactionsFeeStatisticsQuery>(
+            CumulativeTransactionsFeeStatisticsDocumentString,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders },
+          ),
+        'cumulativeTransactionsFeeStatistics',
         'query',
         variables,
       );
