@@ -6,7 +6,7 @@ interface LineGraphProps {
   timeProp: string;
 }
 
-export const StatsHeader: React.FC<LineGraphProps> = ({
+export const StatsHeaderTile: React.FC<LineGraphProps> = ({
   titleProp,
   valuesProp,
   timeProp,

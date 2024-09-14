@@ -1,4 +1,4 @@
-import { StatsHeader } from '../StatsHeader/StatsHeader';
+import { StatsHeaderTile } from '../StatsHeaderTile/StatsHeaderTile';
 
 interface StatsData {
   titleProp: string;
@@ -10,7 +10,7 @@ const Hero = ({ stats }: { stats: StatsData[] }) => {
   return (
     <div className="w-full flex flex-wrap gap-3">
       {stats.map((stat, index) => (
-        <StatsHeader
+        <StatsHeaderTile
           key={index}
           titleProp={stat.titleProp}
           valuesProp={stat.valuesProp}
