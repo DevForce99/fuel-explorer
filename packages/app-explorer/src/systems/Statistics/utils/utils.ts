@@ -6,6 +6,10 @@ interface TransactionNode {
   timestamp: string;
 }
 
+interface AccountNode {
+  timestamp: string;
+}
+
 interface Interval {
   start: Date;
   end: Date;
@@ -234,6 +238,26 @@ export function processTransactions(
         interval.count += 1;
         interval.totalFee += transactionFee;
         break; // Transaction assigned, no need to check further
+      }
+    }
+  });
+  return intervalMap;
+}
+
+// Helper to process accounts and map to intervals
+export function processAccounts(nodes: AccountNode[], intervalMap: Interval[]) {
+  nodes.forEach((account) => {
+    const accountTimestamp = Number(account.timestamp);
+
+    // Find the correct interval for the current account
+    for (const interval of intervalMap) {
+      const intervalStart = new Date(interval.start).getTime();
+      const intervalEnd = new Date(interval.end).getTime();
+
+      if (accountTimestamp >= intervalStart && accountTimestamp < intervalEnd) {
+        // Increment count for the number of accounts created
+        interval.count += 1;
+        break; // Account assigned, no need to check further
       }
     }
   });
