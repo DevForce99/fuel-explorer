@@ -3,7 +3,6 @@
 import { z } from 'zod';
 import { act } from '~/systems/Core/utils/act-server';
 import { sdk } from '~/systems/Core/utils/sdk';
-import { DateHelper } from '../utils/date';
 import {
   createIntervals,
   getUnitAndInterval,
@@ -43,10 +42,8 @@ async function fetchAccountStatistics(
     return isCumulative ? { accounts: [], offset: 0 } : { accounts: [] };
   }
 
-  const firstTimestamp = Number(DateHelper.tai64toDate(nodes[0].timestamp));
-  const lastTimestamp = Number(
-    DateHelper.tai64toDate(nodes[nodes.length - 1].timestamp),
-  );
+  const firstTimestamp = Number(nodes[0].timestamp);
+  const lastTimestamp = Number(nodes[nodes.length - 1].timestamp);
 
   const intervalMap = createIntervals(
     firstTimestamp,

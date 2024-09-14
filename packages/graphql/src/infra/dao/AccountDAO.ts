@@ -1,4 +1,3 @@
-import { DateHelper } from '~/core/Date';
 import { AccountEntity } from '../../domain/Account/AccountEntity';
 import { DatabaseConnection } from '../database/DatabaseConnection';
 import { getTimeInterval } from './utils';
@@ -116,34 +115,43 @@ export default class AccountDAO {
 
     let query = `
       SELECT 
-        (data->'first_transaction_timestamp')::bigint AS timestamp
+        first_transaction_timestamp AS timestamp
       FROM indexer.accounts
     `;
 
-    let intervalStartTimeTai64 = '';
+    let intervalStartTimeDate = '';
 
     if (_interval) {
       const intervalStartTimeInMilliseconds = Date.now() - _interval;
-      const intervalStartTimeDate = new Date(intervalStartTimeInMilliseconds);
-      intervalStartTimeTai64 = DateHelper.dateToTai64(intervalStartTimeDate);
-      query += `WHERE (data->'first_transaction_timestamp')::bigint >= ${intervalStartTimeTai64}`;
+      intervalStartTimeDate = new Date(
+        intervalStartTimeInMilliseconds,
+      ).toISOString();
+
+      // Add the WHERE clause, parameterizing the date value to ensure proper handling
+      query += 'WHERE first_transaction_timestamp >= $1';
     }
 
-    query += ' ORDER BY timestamp asc';
+    query += ' ORDER BY timestamp ASC';
 
-    const accountsData = await this.databaseConnection.query(query, []);
+    // Execute the main query with the interval start date as a parameter
+    const accountsData = await this.databaseConnection.query(query, [
+      intervalStartTimeDate,
+    ]);
 
     // Calculate accountOffset: Accounts created before the first timestamp in the interval
     const offsetQuery = `
-      SELECT COUNT(*) as accountOffset 
+      SELECT COUNT(*) as "accountOffset"
       FROM indexer.accounts
-      WHERE (data->'first_transaction_timestamp')::bigint < ${intervalStartTimeTai64}
+      WHERE first_transaction_timestamp < $1
     `;
-    const offsetResult = await this.databaseConnection.query(offsetQuery, []);
+
+    const offsetResult = await this.databaseConnection.query(offsetQuery, [
+      intervalStartTimeDate,
+    ]);
 
     return {
       nodes: accountsData,
-      accountOffset: offsetResult[0].accountoffset || 0,
+      accountOffset: offsetResult[0].accountOffset || 0,
     };
   }
 
@@ -152,23 +160,28 @@ export default class AccountDAO {
 
     let query = `
       SELECT 
-        COUNT(*) as count,
-        (data->'first_transaction_timestamp')::bigint AS timestamp
+        first_transaction_timestamp AS timestamp
       FROM indexer.accounts
     `;
+    // Prepare interval start time as a valid ISO string
+    let intervalStartTimeDate = '';
 
     if (_interval) {
       const intervalStartTimeInMilliseconds = Date.now() - _interval;
-      const intervalStartTimeDate = new Date(intervalStartTimeInMilliseconds);
-      const intervalStartTimeTai64 = DateHelper.dateToTai64(
-        intervalStartTimeDate,
-      );
-      query += `WHERE (data->'first_transaction_timestamp')::bigint >= ${intervalStartTimeTai64}`;
+      intervalStartTimeDate = new Date(
+        intervalStartTimeInMilliseconds,
+      ).toISOString();
+
+      // Add the WHERE clause, parameterizing the date value to ensure proper handling
+      query += 'WHERE first_transaction_timestamp >= $1';
     }
 
-    query += ' ORDER BY timestamp asc';
+    query += ' ORDER BY timestamp ASC';
 
-    const accountsData = await this.databaseConnection.query(query, []);
+    // Execute the main query with the interval start date as a parameter
+    const accountsData = await this.databaseConnection.query(query, [
+      intervalStartTimeDate,
+    ]);
 
     return {
       nodes: accountsData,

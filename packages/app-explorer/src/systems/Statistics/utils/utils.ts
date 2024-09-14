@@ -6,6 +6,10 @@ interface TransactionNode {
   timestamp: string;
 }
 
+interface AccountNode {
+  timestamp: string;
+}
+
 interface Interval {
   start: Date;
   end: Date;
@@ -178,7 +182,7 @@ export function processTransactions(
 // Helper to process accounts and map to intervals
 export function processAccounts(nodes: AccountNode[], intervalMap: Interval[]) {
   nodes.forEach((account) => {
-    const accountTimestamp = Number(DateHelper.tai64toDate(account.timestamp));
+    const accountTimestamp = Number(account.timestamp);
 
     // Find the correct interval for the current account
     for (const interval of intervalMap) {
