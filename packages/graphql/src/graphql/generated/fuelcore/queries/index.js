@@ -117,15 +117,3 @@ module.exports.cumulativeTransactionsFeeStatistics = fs.readFileSync(
   path.join(__dirname, 'cumulativeTransactionsFeeStatistics.graphql'),
   'utf8',
 );
-module.exports.accountCreationStatistics = fs.readFileSync(
-  path.join(__dirname, 'accountCreationStatistics.graphql'),
-  'utf8',
-);
-module.exports.newAccountStatistics = fs.readFileSync(
-  path.join(__dirname, 'newAccountStatistics.graphql'),
-  'utf8',
-);
-module.exports.cumulativeAccountCreationStatistics = fs.readFileSync(
-  path.join(__dirname, 'cumulativeAccountCreationStatistics.graphql'),
-  'utf8',
-);

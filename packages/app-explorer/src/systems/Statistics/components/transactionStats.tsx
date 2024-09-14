@@ -146,7 +146,7 @@ const TransactionStats = () => {
           dataProp={cumulativeTransactionsData}
           titleProp={'Total Transactions (Cumulative)'}
           selectedTimeRange={cumulativeTransactionFilter}
-          defaultSelectedValue={cumulativeTransactionsData[0]?.count}
+          defaultSelectedValue={cumulativeTransactionsData.at(-1)?.count}
           timeRangeOptions={Object.values(filterOption) as []}
           onTimeRangeChange={(days) => {
             setCumulativeTransactionFilter(getFilterOptionByValue(days));
@@ -156,7 +156,7 @@ const TransactionStats = () => {
           dataProp={dailyTransactionsData}
           titleProp={'Daily Transactions'}
           selectedTimeRange={dailyTransactionsFilter}
-          defaultSelectedValue={dailyTransactionsData[0]?.count}
+          defaultSelectedValue={dailyTransactionsData.at(-1)?.count}
           timeRangeOptions={Object.values(filterOption) as []}
           onTimeRangeChange={(days) => {
             setdailyTransactionsFilter(getFilterOptionByValue(days));

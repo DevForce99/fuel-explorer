@@ -77,7 +77,7 @@ const BlockStats = () => {
         <LineGraph
           dataProp={newBlocksData}
           titleProp={'New Block'}
-          defaultSelectedValue={newBlocksData[0]?.count}
+          defaultSelectedValue={newBlocksData.at(-1)?.count}
           selectedTimeRange={blockTimeFilter}
           timeRangeOptions={Object.values(filterOption) as []}
           onTimeRangeChange={(days) => {
@@ -88,7 +88,7 @@ const BlockStats = () => {
           dataProp={averageBlocksData}
           titleProp={'Avg. Block Reward'}
           selectedTimeRange={blockAvgTimeFilter}
-          defaultSelectedValue={averageBlocksData[0]?.count}
+          defaultSelectedValue={averageBlocksData.at(-1)?.count}
           timeRangeOptions={Object.values(filterOption) as []}
           valueUnit={'ETH'}
           onTimeRangeChange={(days) => {

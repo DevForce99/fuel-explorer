@@ -14,6 +14,7 @@ const StatsHeader = () => {
     let totalTransactions = 0;
     let totalNetworkFee = 0;
     let totalBlock = 0;
+    let tps = 0;
     const transactions: any = await getTransactionStats({ timeFilter: null });
     const blocks: any = await getBlockStats({ timeFilter: null });
     console.log('Stats transactions', transactions);
@@ -22,6 +23,7 @@ const StatsHeader = () => {
         totalTransactions += transaction.count;
         totalNetworkFee += transaction.totalFee;
       });
+      tps = totalTransactions / 86400;
     }
     console.log('bloc transactions', blocks);
     if (blocks) {
@@ -33,19 +35,19 @@ const StatsHeader = () => {
       {
         titleProp: 'Transaction',
         valuesProp: totalTransactions,
-        timeProp: 'All Time',
+        timeProp: 'Last 24h',
       },
       {
         titleProp: 'Transaction Per Second (TPS)',
-        valuesProp: '3,299',
-        timeProp: 'Last 1 Hour',
+        valuesProp: tps.toFixed(0),
+        timeProp: 'Last 24h',
       },
       {
         titleProp: 'Total Network Fees (ETH)',
         valuesProp: totalNetworkFee,
         timeProp: 'Last 24h',
       },
-      { titleProp: 'Blocks', valuesProp: totalBlock, timeProp: 'All Time' },
+      { titleProp: 'Blocks', valuesProp: totalBlock, timeProp: 'Last 24h' },
     ];
   };
 
