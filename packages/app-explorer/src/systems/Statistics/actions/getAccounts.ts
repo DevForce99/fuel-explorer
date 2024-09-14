@@ -52,7 +52,7 @@ async function fetchAccountStatistics(
     intervalSize,
   );
   const accounts = processAccounts(nodes, intervalMap); // Use this function for account-specific logic
-
+  console.log('Account Stats --->', offset, accounts);
   if (isCumulative) {
     return { accounts, offset };
   }

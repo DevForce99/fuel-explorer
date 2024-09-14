@@ -1,5 +1,7 @@
-import { Grid, LineGraph } from '@fuels/ui';
-import React, { useState, useEffect } from 'react';
+import { Grid } from '@fuels/ui';
+
+import { LineGraph } from '@fuels/ui';
+import { useEffect, useState } from 'react';
 import { getBlockStats } from '../actions/getBlocks';
 import {
   filterOption,

@@ -9,8 +9,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { RoundedContainer } from '../Box';
-import { ChartConfig } from '../Charts';
+
+import { RoundedContainer } from '../Box/RoundedContainer';
+import { ChartConfig } from '../Charts/Charts';
 import {
   Select,
   SelectContent,
