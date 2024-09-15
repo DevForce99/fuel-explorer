@@ -100,6 +100,7 @@ export async function getAccountCreationStats(
 export const getAccountStats = act(schema, async ({ timeFilter }) => {
   const params = { timeFilter: timeFilter } as { timeFilter?: string };
   const { unit, intervalSize } = getUnitAndInterval(params.timeFilter || '');
+  console.log('Hello its is called');
 
   return getAccountCreationStats(params, unit, intervalSize);
 });
@@ -108,6 +109,7 @@ export const getDailyAccountCreationStats = act(
   schema,
   async ({ timeFilter }) => {
     const params = { timeFilter: timeFilter } as { timeFilter?: string };
+    console.log('The timefilter for the new accounts', timeFilter);
 
     // Use 'day' as the unit and 1 as the interval size
     return getAccountCreationStats(params, 'day', 1);

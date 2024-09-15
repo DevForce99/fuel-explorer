@@ -1,6 +1,7 @@
 import { Box, Container, Theme } from '@fuels/ui';
 import { tv } from 'tailwind-variants';
 
+import AccountStats from '../components/accountStats';
 import BlockStats from '../components/blockStats';
 import StatsHeader from '../components/statsHeader';
 import TransactionStats from '../components/transactionStats';
@@ -16,31 +17,7 @@ export const StatisticsScreen = () => {
           <BlockStats />
           <TransactionStats />
 
-          <div className="text-heading text-md font-mono my-20">
-            <h2 className="font-mono" style={{ fontSize: '1.5rem' }}>
-              Accounts
-            </h2>
-            {/* <Grid className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <LineGraph
-                dataProp={averageTransactionsData}
-                titleProp={'Total Active (Cumilative)'}
-                selectedDays={averageTransactionsTimeStamp}
-                setSelectedDays={setAverageTransactionsTimeStamp}
-              />
-              <LineGraph
-                dataProp={averageTransactionsData}
-                titleProp={'Daily Active Accounts'}
-                selectedDays={averageTransactionsTimeStamp}
-                setSelectedDays={setAverageTransactionsTimeStamp}
-              />
-              <LineGraph
-                dataProp={averageTransactionsData}
-                titleProp={'New Accounts'}
-                selectedDays={averageTransactionsTimeStamp}
-                setSelectedDays={setAverageTransactionsTimeStamp}
-              />
-            </Grid> */}
-          </div>
+          <AccountStats />
 
           <div className="text-heading text-md font-mono my-20">
             <h2 className="font-mono" style={{ fontSize: '1.5rem' }}>

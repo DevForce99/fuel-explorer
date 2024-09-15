@@ -1035,6 +1035,10 @@ export type GQLQuery = {
   transactionsFeeStatistics: GQLTransactionFeeConnection;
 };
 
+export type GQLQueryAccountCreationStatisticsArgs = {
+  timeFilter?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type GQLQueryBalanceArgs = {
   assetId: Scalars['AssetId']['input'];
   owner: Scalars['Address']['input'];
@@ -1106,6 +1110,10 @@ export type GQLQueryContractsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type GQLQueryCumulativeAccountCreationStatisticsArgs = {
+  timeFilter?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type GQLQueryCumulativeTransactionsFeeStatisticsArgs = {
   timeFilter?: InputMaybe<Scalars['String']['input']>;
 };
@@ -1145,6 +1153,10 @@ export type GQLQueryMessagesArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   owner?: InputMaybe<Scalars['Address']['input']>;
+};
+
+export type GQLQueryNewAccountStatisticsArgs = {
+  timeFilter?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type GQLQueryPredicateArgs = {
@@ -3621,6 +3633,18 @@ export type GQLCumulativeTransactionsFeeStatisticsQuery = {
   };
 };
 
+export type GQLNewAccountStatisticsQueryVariables = Exact<{
+  timeFilter?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+export type GQLNewAccountStatisticsQuery = {
+  __typename: 'Query';
+  newAccountStatistics: {
+    __typename: 'NewAccountStatisticsConnection';
+    nodes?: Array<{ __typename: 'NewAccountNode'; timestamp: string }> | null;
+  };
+};
+
 export type GQLNodeInfoQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GQLNodeInfoQuery = {
@@ -5463,6 +5487,9 @@ const defaultWrapper: SdkFunctionWrapper = (
   _operationType,
   _variables,
 ) => action();
+const AccountCreationStatisticsDocumentString = print(
+  AccountCreationStatisticsDocument,
+);
 const BalanceDocumentString = print(BalanceDocument);
 const BalancesDocumentString = print(BalancesDocument);
 const BlockRewardStatisticsDocumentString = print(
@@ -5474,9 +5501,13 @@ const CoinsDocumentString = print(CoinsDocument);
 const ContractDocumentString = print(ContractDocument);
 const ContractBalanceDocumentString = print(ContractBalanceDocument);
 const ContractBalancesDocumentString = print(ContractBalancesDocument);
+const CumulativeAccountCreationStatisticsDocumentString = print(
+  CumulativeAccountCreationStatisticsDocument,
+);
 const CumulativeTransactionsFeeStatisticsDocumentString = print(
   CumulativeTransactionsFeeStatisticsDocument,
 );
+const NewAccountStatisticsDocumentString = print(NewAccountStatisticsDocument);
 const NodeInfoDocumentString = print(NodeInfoDocument);
 const TransactionsFeeStatisticsDocumentString = print(
   TransactionsFeeStatisticsDocument,
@@ -5486,6 +5517,28 @@ export function getSdk(
   withWrapper: SdkFunctionWrapper = defaultWrapper,
 ) {
   return {
+    accountCreationStatistics(
+      variables?: GQLAccountCreationStatisticsQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+    ): Promise<{
+      data: GQLAccountCreationStatisticsQuery;
+      errors?: GraphQLError[];
+      extensions?: any;
+      headers: Headers;
+      status: number;
+    }> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.rawRequest<GQLAccountCreationStatisticsQuery>(
+            AccountCreationStatisticsDocumentString,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders },
+          ),
+        'accountCreationStatistics',
+        'query',
+        variables,
+      );
+    },
     balance(
       variables: GQLBalanceQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
@@ -5680,6 +5733,28 @@ export function getSdk(
         variables,
       );
     },
+    cumulativeAccountCreationStatistics(
+      variables?: GQLCumulativeAccountCreationStatisticsQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+    ): Promise<{
+      data: GQLCumulativeAccountCreationStatisticsQuery;
+      errors?: GraphQLError[];
+      extensions?: any;
+      headers: Headers;
+      status: number;
+    }> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.rawRequest<GQLCumulativeAccountCreationStatisticsQuery>(
+            CumulativeAccountCreationStatisticsDocumentString,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders },
+          ),
+        'cumulativeAccountCreationStatistics',
+        'query',
+        variables,
+      );
+    },
     cumulativeTransactionsFeeStatistics(
       variables?: GQLCumulativeTransactionsFeeStatisticsQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
@@ -5698,6 +5773,28 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders },
           ),
         'cumulativeTransactionsFeeStatistics',
+        'query',
+        variables,
+      );
+    },
+    newAccountStatistics(
+      variables?: GQLNewAccountStatisticsQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+    ): Promise<{
+      data: GQLNewAccountStatisticsQuery;
+      errors?: GraphQLError[];
+      extensions?: any;
+      headers: Headers;
+      status: number;
+    }> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.rawRequest<GQLNewAccountStatisticsQuery>(
+            NewAccountStatisticsDocumentString,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders },
+          ),
+        'newAccountStatistics',
         'query',
         variables,
       );
