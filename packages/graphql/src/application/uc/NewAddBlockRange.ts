@@ -1,4 +1,3 @@
-import c from 'chalk';
 import { logger } from '~/core/Logger';
 import { client } from '~/graphql/GraphQLSDK';
 import {
@@ -20,10 +19,10 @@ export default class NewAddBlockRange {
   private accountDAO = new AccountDAO();
   async execute(input: Input) {
     const { from, to } = input;
-    logger.syncer.info(c.green(`🔗 Syncing blocks: #${from} - #${to}`));
+    logger.info(`🔗 Syncing blocks: #${from} - #${to}`);
     const blocksData = await this.getBlocks(from, to);
     if (blocksData.length === 0) {
-      logger.syncer.info(c.green(`🔗 No blocks to sync: #${from} - #${to}`));
+      logger.info(`🔗 No blocks to sync: #${from} - #${to}`);
       return;
     }
     const start = performance.now();
@@ -160,9 +159,7 @@ export default class NewAddBlockRange {
     }
     const end = performance.now();
     const secs = Number.parseInt(`${(end - start) / 1000}`);
-    logger.syncer.info(
-      c.green(`✅ Synced blocks: #${from} - #${to} (${secs}s)`),
-    );
+    logger.info(`✅ Synced blocks: #${from} - #${to} (${secs}s)`);
   }
 
   async getBlocks(from: number, to: number): Promise<GQLBlock[]> {
@@ -175,7 +172,7 @@ export default class NewAddBlockRange {
       ...(after ? { after: String(after) } : null),
     };
     const { data } = await client.sdk.blocks(params);
-    logger.syncer.info(c.green(`🔗 Fetching blocks: #${from} - #${to}`));
+    logger.info(`🔗 Fetching blocks: #${from} - #${to}`);
     return data.blocks.nodes as GQLBlock[];
   }
 
@@ -191,7 +188,7 @@ export default class NewAddBlockRange {
   getPredicate(input: GQLInput) {
     if (!['InputCoin', 'InputMessage'].includes(input.__typename)) return;
     const bytecode = (input as GQLInputCoin | GQLInputMessage).predicate;
-    // if bytecode === 0x return;
+    if (bytecode === '0x') return;
     let address = '';
     if (input.__typename === 'InputCoin') address = input.owner;
     if (input.__typename === 'InputMessage') address = input.sender;
