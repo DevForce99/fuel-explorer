@@ -1,4 +1,4 @@
-import { Grid, LineGraph } from '@fuels/ui';
+import { Grid, LineGraph, LoadingBox, LoadingWrapper } from '@fuels/ui';
 import React, { useState, useEffect } from 'react';
 import {
   getCumulativeTransactionStats,
@@ -29,6 +29,21 @@ const TransactionStats = () => {
     useState<filterOption>(filterOption.All);
   const [dailyTransactionsFilter, setdailyTransactionsFilter] =
     useState<filterOption>(filterOption.All);
+
+  const [isLoadingDailyTransactions, setIsLoadingDailyTransactions] =
+    useState(true);
+  const [
+    isLoadingCumulativeTransactionsFeeData,
+    setIsLoadingCumulativeTransactionsFeeData,
+  ] = useState(true);
+  const [
+    isLoadingCumulativeTransactionsData,
+    setIsLoadingCumulativeTransactionsData,
+  ] = useState(true);
+  const [
+    isLoadingAverageTransactionsData,
+    setIsLoadingAverageTransactionsData,
+  ] = useState(true);
 
   const getTransactionStatistics = async (selectedFilter: filterOption) => {
     const displayValue = mapTimeRangeFilterToDataValue(selectedFilter);
@@ -82,13 +97,16 @@ const TransactionStats = () => {
   };
 
   useEffect(() => {
+    setIsLoadingDailyTransactions(true);
     getTransactionStatistics(dailyTransactionsFilter).then((value: any) => {
       console.log('Here is the value', value);
       setDailyTransactionsData(value);
+      setIsLoadingDailyTransactions(false);
     });
   }, [dailyTransactionsFilter]);
 
   useEffect(() => {
+    setIsLoadingAverageTransactionsData(true);
     getTransactionStatistics(averageTransactionsFilter).then((value: any) => {
       console.log('Here is the average transaction data', value);
       const transformedData = Array.isArray(value)
@@ -105,19 +123,23 @@ const TransactionStats = () => {
         : [];
 
       setAverageTransactionsData(transformedData);
+      setIsLoadingAverageTransactionsData(false);
     });
   }, [averageTransactionsFilter]);
 
   useEffect(() => {
+    setIsLoadingCumulativeTransactionsData(true);
     getCumulativeTransactionStatistics(cumulativeTransactionFilter).then(
       (value: any) => {
         console.log('Here is the value', value);
         setCumulativeTransactionsData(value);
+        setIsLoadingCumulativeTransactionsData(false);
       },
     );
   }, [cumulativeTransactionFilter]);
 
   useEffect(() => {
+    setIsLoadingCumulativeTransactionsFeeData(true);
     getCumulativeTransactionStatistics(cumulativeTransactionFeeFilter).then(
       (value: any) => {
         console.log('Transactional Fee value', value);
@@ -132,6 +154,7 @@ const TransactionStats = () => {
             })
           : [];
         setCumulativeTransactionsFeeData(transformedData);
+        setIsLoadingCumulativeTransactionsFeeData(false);
       },
     );
   }, [cumulativeTransactionFeeFilter]);
@@ -142,47 +165,89 @@ const TransactionStats = () => {
         Transactions
       </h2>
       <Grid className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <LineGraph
-          dataProp={cumulativeTransactionsData}
-          titleProp={'Total Transactions (Cumulative)'}
-          selectedTimeRange={cumulativeTransactionFilter}
-          defaultSelectedValue={cumulativeTransactionsData.at(-1)?.count}
-          timeRangeOptions={Object.values(filterOption) as []}
-          onTimeRangeChange={(days) => {
-            setCumulativeTransactionFilter(getFilterOptionByValue(days));
-          }}
+        <LoadingWrapper
+          isLoading={isLoadingCumulativeTransactionsData}
+          loadingEl={
+            <div className="flex items-center justify-center w-full">
+              <LoadingBox className="w-[40rem] h-[25rem]" />
+            </div>
+          }
+          regularEl={
+            <LineGraph
+              dataProp={cumulativeTransactionsData}
+              titleProp={'Total Transactions (Cumulative)'}
+              selectedTimeRange={cumulativeTransactionFilter}
+              defaultSelectedValue={cumulativeTransactionsData.at(-1)?.count}
+              timeRangeOptions={Object.values(filterOption) as []}
+              onTimeRangeChange={(days) => {
+                setCumulativeTransactionFilter(getFilterOptionByValue(days));
+              }}
+            />
+          }
         />
-        <LineGraph
-          dataProp={dailyTransactionsData}
-          titleProp={'Daily Transactions'}
-          selectedTimeRange={dailyTransactionsFilter}
-          defaultSelectedValue={dailyTransactionsData.at(-1)?.count}
-          timeRangeOptions={Object.values(filterOption) as []}
-          onTimeRangeChange={(days) => {
-            setdailyTransactionsFilter(getFilterOptionByValue(days));
-          }}
+
+        <LoadingWrapper
+          isLoading={isLoadingDailyTransactions}
+          loadingEl={
+            <div className="flex items-center justify-center w-full">
+              <LoadingBox className="w-[40rem] h-[25rem]" />
+            </div>
+          }
+          regularEl={
+            <LineGraph
+              dataProp={dailyTransactionsData}
+              titleProp={'Daily Transactions'}
+              selectedTimeRange={dailyTransactionsFilter}
+              defaultSelectedValue={dailyTransactionsData.at(-1)?.count}
+              timeRangeOptions={Object.values(filterOption) as []}
+              onTimeRangeChange={(days) => {
+                setdailyTransactionsFilter(getFilterOptionByValue(days));
+              }}
+            />
+          }
         />
-        <LineGraph
-          dataProp={cumulativeTransactionsFeeData}
-          valueUnit={'ETH'}
-          titleProp={'Daily Transaction Fee Spent (Cumilative)'}
-          timeRangeOptions={Object.values(filterOption) as []}
-          selectedTimeRange={cumulativeTransactionFeeFilter}
-          defaultSelectedValue={cumulativeTransactionsFeeData[0]?.count}
-          onTimeRangeChange={(days) => {
-            setCumulativeTransactionFeeFilter(getFilterOptionByValue(days));
-          }}
+
+        <LoadingWrapper
+          isLoading={isLoadingCumulativeTransactionsFeeData}
+          loadingEl={
+            <div className="flex items-center justify-center w-full">
+              <LoadingBox className="w-[40rem] h-[25rem]" />
+            </div>
+          }
+          regularEl={
+            <LineGraph
+              dataProp={cumulativeTransactionsFeeData}
+              valueUnit={'ETH'}
+              titleProp={'Daily Transaction Fee Spent (Cumilative)'}
+              timeRangeOptions={Object.values(filterOption) as []}
+              selectedTimeRange={cumulativeTransactionFeeFilter}
+              defaultSelectedValue={cumulativeTransactionsFeeData[0]?.count}
+              onTimeRangeChange={(days) => {
+                setCumulativeTransactionFeeFilter(getFilterOptionByValue(days));
+              }}
+            />
+          }
         />
-        <LineGraph
-          dataProp={averageTransactionsData}
-          titleProp={'Avg. Transactions Fee'}
-          valueUnit={'ETH'}
-          timeRangeOptions={Object.values(filterOption) as []}
-          selectedTimeRange={averageTransactionsFilter}
-          defaultSelectedValue={averageTransactionsData[0]?.count}
-          onTimeRangeChange={(days) => {
-            setAverageTransactionsFilter(getFilterOptionByValue(days));
-          }}
+        <LoadingWrapper
+          isLoading={isLoadingAverageTransactionsData}
+          loadingEl={
+            <div className="flex items-center justify-center w-full">
+              <LoadingBox className="w-[40rem] h-[25rem]" />
+            </div>
+          }
+          regularEl={
+            <LineGraph
+              dataProp={averageTransactionsData}
+              titleProp={'Avg. Transactions Fee'}
+              valueUnit={'ETH'}
+              timeRangeOptions={Object.values(filterOption) as []}
+              selectedTimeRange={averageTransactionsFilter}
+              defaultSelectedValue={averageTransactionsData[0]?.count}
+              onTimeRangeChange={(days) => {
+                setAverageTransactionsFilter(getFilterOptionByValue(days));
+              }}
+            />
+          }
         />
       </Grid>
     </div>

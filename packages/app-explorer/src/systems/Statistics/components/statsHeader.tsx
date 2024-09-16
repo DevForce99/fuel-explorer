@@ -1,4 +1,4 @@
-import { Heading, VStack } from '@fuels/ui';
+import { Heading, LoadingBox, LoadingWrapper, VStack } from '@fuels/ui';
 import React, { useState, useEffect } from 'react';
 import { tv } from 'tailwind-variants';
 import { getBlockStats } from '../actions/getBlocks';
@@ -9,60 +9,82 @@ const StatsHeader = () => {
   const classes = styles();
 
   const [stats, setStats] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // State to manage loading
 
   const getStats = async () => {
     let totalTransactions = 0;
     let totalNetworkFee = 0;
     let totalBlock = 0;
     let tps = 0;
-    const transactions: any = await getTransactionStats({ timeFilter: null });
-    const blocks: any = await getBlockStats({ timeFilter: null });
-    console.log('Stats transactions', transactions);
-    if (transactions) {
-      transactions.map((transaction: any) => {
-        totalTransactions += transaction.count;
-        totalNetworkFee += transaction.totalFee;
-      });
-      tps = totalTransactions / 86400;
+
+    try {
+      const transactions: any = await getTransactionStats({ timeFilter: null });
+      const blocks: any = await getBlockStats({ timeFilter: null });
+
+      if (transactions) {
+        transactions.map((transaction: any) => {
+          totalTransactions += transaction.count;
+          totalNetworkFee += transaction.totalFee;
+        });
+        tps = totalTransactions / 86400;
+      }
+
+      if (blocks) {
+        blocks.map((block: any) => {
+          totalBlock += block.count;
+        });
+      }
+
+      return [
+        {
+          titleProp: 'Transaction',
+          valuesProp: totalTransactions,
+          timeProp: 'Last 24h',
+        },
+        {
+          titleProp: 'Transaction Per Second (TPS)',
+          valuesProp: tps.toFixed(0),
+          timeProp: 'Last 24h',
+        },
+        {
+          titleProp: 'Total Network Fees (ETH)',
+          valuesProp: totalNetworkFee,
+          timeProp: 'Last 24h',
+        },
+        { titleProp: 'Blocks', valuesProp: totalBlock, timeProp: 'Last 24h' },
+      ];
+    } catch (error) {
+      console.error('Error fetching stats', error);
+      return [];
     }
-    console.log('bloc transactions', blocks);
-    if (blocks) {
-      blocks.map((block: any) => {
-        totalBlock += block.count;
-      });
-    }
-    return [
-      {
-        titleProp: 'Transaction',
-        valuesProp: totalTransactions,
-        timeProp: 'Last 24h',
-      },
-      {
-        titleProp: 'Transaction Per Second (TPS)',
-        valuesProp: tps.toFixed(0),
-        timeProp: 'Last 24h',
-      },
-      {
-        titleProp: 'Total Network Fees (ETH)',
-        valuesProp: totalNetworkFee,
-        timeProp: 'Last 24h',
-      },
-      { titleProp: 'Blocks', valuesProp: totalBlock, timeProp: 'Last 24h' },
-    ];
   };
 
   useEffect(() => {
     getStats().then((value: any) => {
       setStats(value);
+      setIsLoading(false); // Set loading to false when data is fetched
     });
   }, []);
 
   return (
     <VStack>
       <Heading className={classes.title()}>Statistics</Heading>
-      <div className="pb-6">
-        <Hero stats={stats} />
-      </div>
+      <LoadingWrapper
+        isLoading={isLoading}
+        loadingEl={
+          <div className="flex items-center justify-center w-full gap-3">
+            <LoadingBox className=" w-72 h-28" />
+            <LoadingBox className=" w-72 h-28" />
+            <LoadingBox className=" w-72 h-28" />
+            <LoadingBox className=" w-72 h-28" />
+          </div>
+        }
+        regularEl={
+          <div className="pb-6">
+            <Hero stats={stats} />
+          </div>
+        }
+      />
     </VStack>
   );
 };

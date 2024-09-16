@@ -1,5 +1,4 @@
-import { Grid } from '@fuels/ui';
-
+import { Grid, LoadingBox, LoadingWrapper } from '@fuels/ui';
 import { LineGraph } from '@fuels/ui';
 import { useEffect, useState } from 'react';
 import { getBlockStats } from '../actions/getBlocks';
@@ -19,6 +18,9 @@ const BlockStats = () => {
   const [blockAvgTimeFilter, setblockAvgTimeFilter] = useState<filterOption>(
     filterOption.All,
   );
+
+  const [isLoadingNewBlocks, setIsLoadingNewBlocks] = useState(true);
+  const [isLoadingAvgBlocks, setIsLoadingAvgBlocks] = useState(true);
 
   const getBlockStatistics = async (selectedFilter: filterOption) => {
     const displayValue = mapTimeRangeFilterToDataValue(selectedFilter);
@@ -47,12 +49,15 @@ const BlockStats = () => {
   };
 
   useEffect(() => {
+    setIsLoadingNewBlocks(true);
     getBlockStatistics(blockTimeFilter).then((value: any) => {
       setNewBlocksData(value);
+      setIsLoadingNewBlocks(false);
     });
   }, [blockTimeFilter]);
 
   useEffect(() => {
+    setIsLoadingAvgBlocks(true);
     getBlockStatistics(blockAvgTimeFilter).then((value: any) => {
       const transformedData = Array.isArray(value)
         ? value.map((item: any) => {
@@ -66,34 +71,56 @@ const BlockStats = () => {
           })
         : [];
       setAverageBlocksData(transformedData);
+      setIsLoadingAvgBlocks(false);
     });
   }, [blockAvgTimeFilter]);
+
   return (
     <div className="text-heading text-md font-mono my-20">
       <h2 className="font-mono" style={{ fontSize: '1.5rem' }}>
         Blocks
       </h2>
       <Grid className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <LineGraph
-          dataProp={newBlocksData}
-          titleProp={'New Block'}
-          defaultSelectedValue={newBlocksData.at(-1)?.count}
-          selectedTimeRange={blockTimeFilter}
-          timeRangeOptions={Object.values(filterOption) as []}
-          onTimeRangeChange={(days) => {
-            setBlockTimeFilter(getFilterOptionByValue(days));
-          }}
+        <LoadingWrapper
+          isLoading={isLoadingNewBlocks}
+          loadingEl={
+            <div className="flex items-center justify-center w-full">
+              <LoadingBox className="w-[40rem] h-[25rem]" />
+            </div>
+          }
+          regularEl={
+            <LineGraph
+              dataProp={newBlocksData}
+              titleProp={'New Block'}
+              defaultSelectedValue={newBlocksData.at(-1)?.count}
+              selectedTimeRange={blockTimeFilter}
+              timeRangeOptions={Object.values(filterOption) as []}
+              onTimeRangeChange={(days) => {
+                setBlockTimeFilter(getFilterOptionByValue(days));
+              }}
+            />
+          }
         />
-        <LineGraph
-          dataProp={averageBlocksData}
-          titleProp={'Avg. Block Reward'}
-          selectedTimeRange={blockAvgTimeFilter}
-          defaultSelectedValue={averageBlocksData.at(-1)?.count}
-          timeRangeOptions={Object.values(filterOption) as []}
-          valueUnit={'ETH'}
-          onTimeRangeChange={(days) => {
-            setblockAvgTimeFilter(getFilterOptionByValue(days));
-          }}
+        <LoadingWrapper
+          isLoading={isLoadingAvgBlocks}
+          loadingEl={
+            <div className="flex items-center justify-center w-full">
+              <LoadingBox className="w-[40rem] h-[25rem]" />
+            </div>
+          }
+          regularEl={
+            <LineGraph
+              dataProp={averageBlocksData}
+              titleProp={'Avg. Block Reward'}
+              selectedTimeRange={blockAvgTimeFilter}
+              defaultSelectedValue={averageBlocksData.at(-1)?.count}
+              timeRangeOptions={Object.values(filterOption) as []}
+              valueUnit={'ETH'}
+              onTimeRangeChange={(days) => {
+                setblockAvgTimeFilter(getFilterOptionByValue(days));
+              }}
+            />
+          }
         />
       </Grid>
     </div>
