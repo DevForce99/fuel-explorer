@@ -17,10 +17,6 @@ module.exports.blocks = fs.readFileSync(
   path.join(__dirname, 'blocks.graphql'),
   'utf8',
 );
-module.exports.blockRewardStatistics = fs.readFileSync(
-  path.join(__dirname, 'blockRewardStatistics.graphql'),
-  'utf8',
-);
 module.exports.chain = fs.readFileSync(
   path.join(__dirname, 'chain.graphql'),
   'utf8',
@@ -109,23 +105,7 @@ module.exports.transactionsByOwner = fs.readFileSync(
   path.join(__dirname, 'transactionsByOwner.graphql'),
   'utf8',
 );
-module.exports.transactionsFeeStatistics = fs.readFileSync(
-  path.join(__dirname, 'transactionsFeeStatistics.graphql'),
-  'utf8',
-);
-module.exports.cumulativeTransactionsFeeStatistics = fs.readFileSync(
-  path.join(__dirname, 'cumulativeTransactionsFeeStatistics.graphql'),
-  'utf8',
-);
-module.exports.accountCreationStatistics = fs.readFileSync(
-  path.join(__dirname, 'accountCreationStatistics.graphql'),
-  'utf8',
-);
-module.exports.newAccountStatistics = fs.readFileSync(
-  path.join(__dirname, 'newAccountStatistics.graphql'),
-  'utf8',
-);
-module.exports.cumulativeAccountCreationStatistics = fs.readFileSync(
-  path.join(__dirname, 'cumulativeAccountCreationStatistics.graphql'),
+module.exports.transactionsByBlockId = fs.readFileSync(
+  path.join(__dirname, 'transactionsByBlockId.graphql'),
   'utf8',
 );

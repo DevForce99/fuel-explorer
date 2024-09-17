@@ -1,6 +1,7 @@
 import type {
   GQLQueryTransactionArgs,
   GQLQueryTransactionsArgs,
+  GQLQueryTransactionsByBlockIdArgs,
   GQLQueryTransactionsByOwnerArgs,
   GQLQueryTransactionsFeeStatisticsArgs,
   GQLTransaction,
@@ -13,6 +14,7 @@ type Params = {
   transaction: GQLQueryTransactionArgs;
   transactions: GQLQueryTransactionsArgs;
   transactionByOwner: GQLQueryTransactionsByOwnerArgs;
+  transactionByBlockId: GQLQueryTransactionsByBlockIdArgs;
   transactionFees: GQLQueryTransactionsFeeStatisticsArgs;
 };
 
@@ -24,6 +26,7 @@ export class TransactionResolver {
         transaction: resolvers.transaction,
         transactions: resolvers.transactions,
         transactionsByOwner: resolvers.transactionsByOwner,
+        transactionsByBlockId: resolvers.transactionsByBlockId,
         transactionsFeeStatistics: resolvers.transactionsFeeStatistics,
         cumulativeTransactionsFeeStatistics:
           resolvers.cumulativeTransactionsFeeStatistics,
@@ -51,6 +54,19 @@ export class TransactionResolver {
     const paginatedParams = new PaginatedParams(params);
     const transactions = await transactionDAO.getPaginatedTransactionsByOwner(
       params.owner,
+      paginatedParams,
+    );
+    return transactions;
+  }
+
+  async transactionsByBlockId(
+    _: Source,
+    params: Params['transactionByBlockId'],
+  ) {
+    const transactionDAO = new TransactionDAO();
+    const paginatedParams = new PaginatedParams(params);
+    const transactions = await transactionDAO.getPaginatedTransactionsByBlockId(
+      params.blockId,
       paginatedParams,
     );
     return transactions;

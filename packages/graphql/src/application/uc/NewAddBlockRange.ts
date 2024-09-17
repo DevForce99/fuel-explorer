@@ -1,4 +1,3 @@
-import c from 'chalk';
 import { logger } from '~/core/Logger';
 import { client } from '~/graphql/GraphQLSDK';
 import {
@@ -20,10 +19,10 @@ export default class NewAddBlockRange {
   private accountDAO = new AccountDAO();
   async execute(input: Input) {
     const { from, to } = input;
-    logger.syncer.info(c.green(`🔗 Syncing blocks: #${from} - #${to}`));
+    logger.info(`🔗 Syncing blocks: #${from} - #${to}`);
     const blocksData = await this.getBlocks(from, to);
     if (blocksData.length === 0) {
-      logger.syncer.info(c.green(`🔗 No blocks to sync: #${from} - #${to}`));
+      logger.info(`🔗 No blocks to sync: #${from} - #${to}`);
       return;
     }
     const start = performance.now();
@@ -31,6 +30,7 @@ export default class NewAddBlockRange {
     for (const blockData of blocksData) {
       const queries: { statement: string; params: any }[] = [];
       const block = new Block({ data: blockData });
+      const blockTransactionTime = block.timestamp;
       queries.push({
         statement:
           'insert into indexer.blocks (_id, id, timestamp, data, gas_used, producer) values ($1, $2, $3, $4, $5, $6) on conflict do nothing',
@@ -108,7 +108,6 @@ export default class NewAddBlockRange {
           }
         }
       }
-
       // New code starts here: Fetch and save account data
       const owners = this.extractUniqueOwners(blockData.transactions);
       for (const owner of owners) {
@@ -122,35 +121,44 @@ export default class NewAddBlockRange {
         ).length;
 
         let newData: any;
+        let newBalance: bigint;
 
         if (existingAccount) {
           // Increment transaction count by the number of transactions found in the current range
           await this.accountDAO.incrementTransactionCount(
             owner,
+            blockTransactionTime,
             transactionCountIncrement,
           );
 
           newData = await this.fetchAccountDataFromGraphQL(owner);
+          newBalance = await this.fetchBalance(owner);
 
-          await this.accountDAO.updateAccountData(owner, newData);
+          await this.accountDAO.updateAccountBalance(owner, newBalance);
+          await this.accountDAO.updateAccountData(
+            owner,
+            newData,
+            blockTransactionTime,
+          );
         } else {
+          newBalance = await this.fetchBalance(owner);
           newData = await this.fetchAccountDataFromGraphQL(owner);
 
           const newAccount = AccountEntity.create({
             account_id: owner,
+            balance: newBalance,
             transactionCount: transactionCountIncrement,
             data: newData,
+            first_transaction_timestamp: blockTransactionTime,
           });
-          await this.accountDAO.save(newAccount);
+          await this.accountDAO.save(newAccount, blockTransactionTime);
         }
       }
       await connection.executeTransaction(queries);
     }
     const end = performance.now();
     const secs = Number.parseInt(`${(end - start) / 1000}`);
-    logger.syncer.info(
-      c.green(`✅ Synced blocks: #${from} - #${to} (${secs}s)`),
-    );
+    logger.info(`✅ Synced blocks: #${from} - #${to} (${secs}s)`);
   }
 
   async getBlocks(from: number, to: number): Promise<GQLBlock[]> {
@@ -163,7 +171,7 @@ export default class NewAddBlockRange {
       ...(after ? { after: String(after) } : null),
     };
     const { data } = await client.sdk.blocks(params);
-    logger.syncer.info(c.green(`🔗 Fetching blocks: #${from} - #${to}`));
+    logger.info(`🔗 Fetching blocks: #${from} - #${to}`);
     return data.blocks.nodes as GQLBlock[];
   }
 
@@ -179,7 +187,7 @@ export default class NewAddBlockRange {
   getPredicate(input: GQLInput) {
     if (!['InputCoin', 'InputMessage'].includes(input.__typename)) return;
     const bytecode = (input as GQLInputCoin | GQLInputMessage).predicate;
-    // if bytecode === 0x return;
+    if (bytecode === '0x') return;
     let address = '';
     if (input.__typename === 'InputCoin') address = input.owner;
     if (input.__typename === 'InputMessage') address = input.sender;
@@ -219,6 +227,15 @@ export default class NewAddBlockRange {
       }
     }
     return accounts;
+  }
+
+  private async fetchBalance(owner: string): Promise<bigint> {
+    const response = await client.sdk.balance({
+      owner,
+      assetId:
+        '0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07',
+    });
+    return BigInt(response.data.balance.amount);
   }
 
   // New method to extract unique owners

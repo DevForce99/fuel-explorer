@@ -785,9 +785,10 @@ type Query {
   transactionsByOwner(after: String, before: String, first: Int, last: Int, owner: Address!): TransactionConnection!
   transactionsFeeStatistics(timeFilter: String): TransactionFeeConnection!
   cumulativeTransactionsFeeStatistics(timeFilter: String): CumulativeTransactionFeeConnection!
-  accountCreationStatistics(timeFilter: String): CumulativeAccountCreationConnection!
   newAccountStatistics(timeFilter: String): NewAccountStatisticsConnection!
   cumulativeAccountCreationStatistics(timeFilter: String): CumulativeAccountCreationConnection!
+  dailyActiveAccounts(timeFilter: String): DailyActiveAccountsConnection!
+  paginatedAccounts(cursor: String, direction: String, first: Int, sortBy: String, sortOrder: String): PaginatedAccountConnection!
 }
 
 type Receipt {
@@ -1073,4 +1074,25 @@ type AccountCreationNode {
 
 type NewAccountNode {
   timestamp: String!
+}
+
+type DailyActiveAccountsConnection {
+  nodes: [DailyActiveAccountsNode!]!
+}
+
+type DailyActiveAccountsNode {
+  timestamp: String!
+  count: Int!
+}
+
+type PaginatedAccountConnection {
+  nodes: [AccountNode!]!
+  pageInfo: PageInfo!
+}
+
+type AccountNode {
+  id: ID!
+  account_id: String!
+  balance: String!
+  transaction_count: Int!
 }
