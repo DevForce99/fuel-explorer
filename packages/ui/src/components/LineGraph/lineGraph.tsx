@@ -175,6 +175,8 @@ export const LineGraph: React.FC<LineGraphProps> = ({
           <XAxis
             dataKey="start"
             tickFormatter={(tick) => new Date(tick).toLocaleDateString()} // Converts timestamp to readable date
+            axisLine={false}
+            tickLine={false}
             tick={{
               fontSize: 10,
               className: 'fill-heading',
@@ -182,6 +184,8 @@ export const LineGraph: React.FC<LineGraphProps> = ({
           />
 
           <YAxis
+            axisLine={false}
+            tickLine={false}
             tick={{
               fontSize: 12,
               className: 'fill-heading',
@@ -189,21 +193,21 @@ export const LineGraph: React.FC<LineGraphProps> = ({
           />
 
           <defs>
-            <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="colorGradient" x1="0" y1="0.2" x2="0" y2="1">
               <stop
                 offset="0%"
                 stopColor={gradientStartColor}
                 stopOpacity={1}
               />
               <stop
-                offset="60%"
+                offset="30%"
                 stopColor={gradientStartColor}
                 stopOpacity={0.7}
               />
               <stop
                 offset="100%"
                 stopColor={gradientEndColor}
-                stopOpacity={0.2}
+                stopOpacity={0.0}
               />
             </linearGradient>
           </defs>
@@ -212,7 +216,7 @@ export const LineGraph: React.FC<LineGraphProps> = ({
             type="monotone"
             dataKey="count"
             stroke={chartConfig.desktop.color}
-            strokeWidth={2}
+            strokeWidth={1.5}
             fill="url(#colorGradient)"
             dot={{ fill: '#14b773', stroke: '#000', strokeWidth: 2, r: 0 }}
             activeDot={{ r: 5 }}

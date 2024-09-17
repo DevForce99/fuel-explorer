@@ -18,8 +18,10 @@ const StatsHeader = () => {
     let tps = 0;
 
     try {
-      const transactions: any = await getTransactionStats({ timeFilter: null });
-      const blocks: any = await getBlockStats({ timeFilter: null });
+      const transactions: any = await getTransactionStats({
+        timeFilter: '1day',
+      });
+      const blocks: any = await getBlockStats({ timeFilter: '1day' });
 
       if (transactions) {
         transactions.map((transaction: any) => {
@@ -48,7 +50,7 @@ const StatsHeader = () => {
         },
         {
           titleProp: 'Total Network Fees (ETH)',
-          valuesProp: totalNetworkFee,
+          valuesProp: totalNetworkFee / 10 ** 9,
           timeProp: 'Last 24h',
         },
         { titleProp: 'Blocks', valuesProp: totalBlock, timeProp: 'Last 24h' },

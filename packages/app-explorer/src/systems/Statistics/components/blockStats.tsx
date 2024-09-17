@@ -13,10 +13,10 @@ const BlockStats = () => {
   const [averageBlocksData, setAverageBlocksData] = useState<any[]>([]);
 
   const [blockTimeFilter, setBlockTimeFilter] = useState<filterOption>(
-    filterOption.All,
+    filterOption.d7,
   );
   const [blockAvgTimeFilter, setblockAvgTimeFilter] = useState<filterOption>(
-    filterOption.All,
+    filterOption.d7,
   );
 
   const [isLoadingNewBlocks, setIsLoadingNewBlocks] = useState(true);
@@ -34,13 +34,12 @@ const BlockStats = () => {
         throw new Error('Expected data to be an array');
       }
 
-      const transformedData = data
-        .map((item: any) => ({
-          start: item.start,
-          count: item.count,
-          totalRewards: item.totalRewards,
-        }))
-        .reverse();
+      const transformedData = data.map((item: any) => ({
+        start: item.start,
+        count: item.count,
+        totalRewards: item.totalRewards,
+      }));
+
       return transformedData;
     } catch (error) {
       console.error('Error fetching or processing block statistics:', error);

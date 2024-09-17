@@ -15,26 +15,27 @@ const TransactionStats = () => {
     any[]
   >([]);
   const [dailyTransactionsData, setDailyTransactionsData] = useState<any[]>([]);
-  const [cumulativeTransactionsFeeData, setCumulativeTransactionsFeeData] =
-    useState<any[]>([]);
+  const [dailyTransactionFeeData, setdailyTransactionFeeData] = useState<any[]>(
+    [],
+  );
   const [averageTransactionsData, setAverageTransactionsData] = useState<any[]>(
     [],
   );
 
   const [cumulativeTransactionFilter, setCumulativeTransactionFilter] =
-    useState<filterOption>(filterOption.All);
+    useState<filterOption>(filterOption.d7);
   const [cumulativeTransactionFeeFilter, setCumulativeTransactionFeeFilter] =
-    useState<filterOption>(filterOption.All);
+    useState<filterOption>(filterOption.d7);
   const [averageTransactionsFilter, setAverageTransactionsFilter] =
-    useState<filterOption>(filterOption.All);
+    useState<filterOption>(filterOption.d7);
   const [dailyTransactionsFilter, setdailyTransactionsFilter] =
-    useState<filterOption>(filterOption.All);
+    useState<filterOption>(filterOption.d7);
 
   const [isLoadingDailyTransactions, setIsLoadingDailyTransactions] =
     useState(true);
   const [
-    isLoadingCumulativeTransactionsFeeData,
-    setIsLoadingCumulativeTransactionsFeeData,
+    isLoadingdailyTransactionFeeData,
+    setIsLoadingdailyTransactionFeeData,
   ] = useState(true);
   const [
     isLoadingCumulativeTransactionsData,
@@ -55,13 +56,12 @@ const TransactionStats = () => {
       if (!Array.isArray(data)) {
         throw new Error('Expected data to be an array');
       }
-      const transformedData = data
-        .map((item: any) => ({
-          start: item.start,
-          count: item.count,
-          totalRewards: item.totalFee,
-        }))
-        .reverse();
+      const transformedData = data.map((item: any) => ({
+        start: item.start,
+        count: item.count,
+        totalRewards: item.totalFee,
+      }));
+
       return transformedData;
     } catch (error) {
       console.error('Error fetching or processing block statistics:', error);
@@ -77,11 +77,13 @@ const TransactionStats = () => {
       const data: any = await getCumulativeTransactionStats({
         timeFilter: displayValue,
       });
-      console.log(data);
+
       if (!Array.isArray(data?.transactions)) {
         throw new Error('Expected data to be an array');
       }
-      let previousCount = data.offset;
+
+      let previousCount = +data?.offset ?? 0;
+
       const transformedData = data.transactions.map((item: any) => {
         const currentCount = previousCount + item.count;
         const result = {
@@ -89,10 +91,10 @@ const TransactionStats = () => {
           count: currentCount,
           rewards: item.totalFee,
         };
-        previousCount = item.count;
+        previousCount = currentCount;
         return result;
       });
-      console.log('Transformed Data is', transformedData);
+
       return transformedData;
     } catch (error) {
       console.error('Error fetching or processing block statistics:', error);
@@ -103,7 +105,6 @@ const TransactionStats = () => {
   useEffect(() => {
     setIsLoadingDailyTransactions(true);
     getTransactionStatistics(dailyTransactionsFilter).then((value: any) => {
-      console.log('Here is the value', value);
       setDailyTransactionsData(value);
       setIsLoadingDailyTransactions(false);
     });
@@ -112,7 +113,6 @@ const TransactionStats = () => {
   useEffect(() => {
     setIsLoadingAverageTransactionsData(true);
     getTransactionStatistics(averageTransactionsFilter).then((value: any) => {
-      console.log('Here is the average transaction data', value);
       const transformedData = Array.isArray(value)
         ? value.map((item: any) => {
             const totalFeeSpent = Number(item.totalRewards) || 0;
@@ -142,10 +142,9 @@ const TransactionStats = () => {
   }, [cumulativeTransactionFilter]);
 
   useEffect(() => {
-    setIsLoadingCumulativeTransactionsFeeData(true);
+    setIsLoadingdailyTransactionFeeData(true);
     getCumulativeTransactionStatistics(cumulativeTransactionFeeFilter).then(
       (value: any) => {
-        console.log('Transactional Fee value', value);
         const transformedData = Array.isArray(value)
           ? value.map((item: any) => {
               const totalFeeSpent = Number(item.rewards) || 0;
@@ -156,8 +155,8 @@ const TransactionStats = () => {
               };
             })
           : [];
-        setCumulativeTransactionsFeeData(transformedData);
-        setIsLoadingCumulativeTransactionsFeeData(false);
+        setdailyTransactionFeeData(transformedData);
+        setIsLoadingdailyTransactionFeeData(false);
       },
     );
   }, [cumulativeTransactionFeeFilter]);
@@ -211,7 +210,7 @@ const TransactionStats = () => {
         />
 
         <LoadingWrapper
-          isLoading={isLoadingCumulativeTransactionsFeeData}
+          isLoading={isLoadingdailyTransactionFeeData}
           loadingEl={
             <div className="flex items-center justify-center w-full">
               <LoadingBox className="w-[40rem] h-[25rem]" />
@@ -219,12 +218,12 @@ const TransactionStats = () => {
           }
           regularEl={
             <LineGraph
-              dataProp={cumulativeTransactionsFeeData}
+              dataProp={dailyTransactionFeeData}
               valueUnit={'ETH'}
-              titleProp={'Daily Transaction Fee Spent (Cumilative)'}
+              titleProp={'Daily Transaction Fee Spent'}
               timeRangeOptions={Object.values(filterOption) as []}
               selectedTimeRange={cumulativeTransactionFeeFilter}
-              defaultSelectedValue={cumulativeTransactionsFeeData[0]?.count}
+              defaultSelectedValue={dailyTransactionFeeData[0]?.count}
               onTimeRangeChange={(days) => {
                 setCumulativeTransactionFeeFilter(getFilterOptionByValue(days));
               }}

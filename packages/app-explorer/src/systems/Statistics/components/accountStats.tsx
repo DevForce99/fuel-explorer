@@ -1,16 +1,11 @@
 import { Grid, LineGraph, LoadingBox, LoadingWrapper } from '@fuels/ui';
 import React, { useState, useEffect } from 'react';
-// import {
-//   getCumulativeTransaccountStats,
-//   getTransaccountStats,
-// } from '../accounts/getTransaccounts';
 
-// import { getAccountStats, getCumulativeAccountStats } from '../accounts/getAccounts';
 import {
-  getAccountStats,
   getCumulativeAccountStats,
-  getDailyAccountCreationStats,
-} from '../actions/getAccounts';
+  getDailyActiveAccountStatsAction,
+  getNewAccountStats,
+} from '../getAccounts';
 import {
   filterOption,
   getFilterOptionByValue,
@@ -25,12 +20,12 @@ const TransaccountStats = () => {
   const [dailyAccountsData, setDailyAccountsData] = useState<any[]>([]);
 
   const [cumulativeAccountFilter, setCumulativeAccountFilter] =
-    useState<filterOption>(filterOption.All);
+    useState<filterOption>(filterOption.d7);
   const [newAccountsFilter, setNewAccountsFilter] = useState<filterOption>(
-    filterOption.All,
+    filterOption.d7,
   );
   const [dailyAccountsDataFilter, setDailyAccountsDataFilter] =
-    useState<filterOption>(filterOption.All);
+    useState<filterOption>(filterOption.d7);
 
   const [isLoadingNewAccountsData, setIsLoadingNewAccountsData] =
     useState(true);
@@ -41,24 +36,19 @@ const TransaccountStats = () => {
 
   const getNewAccountStatistics = async (selectedFilter: filterOption) => {
     const displayValue = mapTimeRangeFilterToDataValue(selectedFilter);
-    console.log('get new account display value', displayValue);
     try {
-      const data: any = await getDailyAccountCreationStats({
-        timeFilter: '30days',
+      const data: any = await getNewAccountStats({
+        timeFilter: displayValue,
       });
-      console.log('The dat of new account creation is ', data);
 
       if (!Array.isArray(data)) {
         throw new Error('Expected data to be an array');
       }
-      const transformedData = data
-        .map((item: any) => ({
-          start: item.start,
-          count: item.count,
-          dailyRewards: item.dailyFee,
-        }))
-        .reverse();
-      console.log(transformedData);
+      const transformedData = data.map((item: any) => ({
+        start: item.start,
+        count: item.count,
+        dailyRewards: item.dailyFee,
+      }));
       return transformedData;
     } catch (error) {
       console.error('Error fetching or processing block statistics:', error);
@@ -69,26 +59,30 @@ const TransaccountStats = () => {
   const getCumulativeAccountStatistics = async (
     selectedFilter: filterOption,
   ) => {
-    const _displayValue = mapTimeRangeFilterToDataValue(selectedFilter);
+    const displayValue = mapTimeRangeFilterToDataValue(selectedFilter);
     try {
       const data: any = await getCumulativeAccountStats({
-        timeFilter: _displayValue,
+        timeFilter: displayValue,
       });
-      console.log(data);
-      if (!Array.isArray(data)) {
+
+      if (!Array.isArray(data.accounts)) {
         throw new Error('Expected data to be an array');
       }
-      const transformedData = data
-        .map((item: any) => ({
+      let previousCount = data.offset ?? 0;
+      const transformedData = data.accounts.map((item: any) => {
+        const currentCount = previousCount + item.count;
+        const result = {
           start: item.start,
-          count: item.count + data?.offset,
-          rewards: item.dailyFee,
-        }))
-        .reverse();
-      console.log('Transformed Data is', transformedData);
+          count: currentCount,
+          rewards: item.totalFee,
+        };
+        previousCount = currentCount;
+        return result;
+      });
+
       return transformedData;
     } catch (error) {
-      console.error('Error fetching or processing block statistics:', error);
+      console.error('Error fetching or processing account statistics:', error);
       return [];
     }
   };
@@ -96,20 +90,19 @@ const TransaccountStats = () => {
   const getDailyAccountsData = async (selectedFilter: filterOption) => {
     const _displayValue = mapTimeRangeFilterToDataValue(selectedFilter);
     try {
-      const data: any = await getAccountStats({
+      const data: any = await getDailyActiveAccountStatsAction({
         timeFilter: _displayValue,
       });
       console.log(data);
       if (!Array.isArray(data)) {
         throw new Error('Expected data to be an array');
       }
-      const transformedData = data
-        .map((item: any) => ({
-          start: item.start,
-          count: item.count,
-          rewards: item.dailyFee,
-        }))
-        .reverse();
+      const transformedData = data.map((item: any) => ({
+        start: item.start,
+        count: item.count,
+        rewards: item.dailyFee,
+      }));
+
       console.log('Transformed Data is', transformedData);
       return transformedData;
     } catch (error) {
@@ -205,11 +198,10 @@ const TransaccountStats = () => {
           regularEl={
             <LineGraph
               dataProp={newAccountsData}
-              valueUnit={'ETH'}
               titleProp={'New Accounts'}
               timeRangeOptions={Object.values(filterOption) as []}
               selectedTimeRange={newAccountsFilter}
-              defaultSelectedValue={newAccountsData[0]?.count}
+              defaultSelectedValue={newAccountsData.at(-1)?.count}
               onTimeRangeChange={(days) => {
                 setNewAccountsFilter(getFilterOptionByValue(days));
               }}
