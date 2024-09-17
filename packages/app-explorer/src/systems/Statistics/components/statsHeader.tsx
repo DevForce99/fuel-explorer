@@ -37,7 +37,7 @@ const StatsHeader = () => {
 
       return [
         {
-          titleProp: 'Transaction',
+          titleProp: 'Transactions',
           valuesProp: totalTransactions,
           timeProp: 'Last 24h',
         },
