@@ -72,7 +72,7 @@ const TransaccountStats = () => {
     const _displayValue = mapTimeRangeFilterToDataValue(selectedFilter);
     try {
       const data: any = await getCumulativeAccountStats({
-        timeFilter: '30days',
+        timeFilter: _displayValue,
       });
       console.log(data);
       if (!Array.isArray(data)) {
@@ -97,7 +97,7 @@ const TransaccountStats = () => {
     const _displayValue = mapTimeRangeFilterToDataValue(selectedFilter);
     try {
       const data: any = await getAccountStats({
-        timeFilter: '30days',
+        timeFilter: _displayValue,
       });
       console.log(data);
       if (!Array.isArray(data)) {

@@ -81,13 +81,17 @@ const TransactionStats = () => {
       if (!Array.isArray(data?.transactions)) {
         throw new Error('Expected data to be an array');
       }
-      const transformedData = data.transactions
-        .map((item: any) => ({
+      let previousCount = data.offset;
+      const transformedData = data.transactions.map((item: any) => {
+        const currentCount = previousCount + item.count;
+        const result = {
           start: item.start,
-          count: item.count + data.offset,
+          count: currentCount,
           rewards: item.totalFee,
-        }))
-        .reverse();
+        };
+        previousCount = item.count;
+        return result;
+      });
       console.log('Transformed Data is', transformedData);
       return transformedData;
     } catch (error) {
@@ -131,7 +135,6 @@ const TransactionStats = () => {
     setIsLoadingCumulativeTransactionsData(true);
     getCumulativeTransactionStatistics(cumulativeTransactionFilter).then(
       (value: any) => {
-        console.log('Here is the value', value);
         setCumulativeTransactionsData(value);
         setIsLoadingCumulativeTransactionsData(false);
       },
@@ -146,10 +149,10 @@ const TransactionStats = () => {
         const transformedData = Array.isArray(value)
           ? value.map((item: any) => {
               const totalFeeSpent = Number(item.rewards) || 0;
-              const averageRewardInETH = totalFeeSpent / 10 ** 9;
+              const feeInEth = totalFeeSpent / 10 ** 9;
               return {
                 start: item.start,
-                count: averageRewardInETH.toFixed(9),
+                count: feeInEth.toFixed(9),
               };
             })
           : [];

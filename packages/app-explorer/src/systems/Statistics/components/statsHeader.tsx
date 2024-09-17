@@ -43,7 +43,7 @@ const StatsHeader = () => {
         },
         {
           titleProp: 'Transaction Per Second (TPS)',
-          valuesProp: tps.toFixed(0),
+          valuesProp: tps.toFixed(2),
           timeProp: 'Last 24h',
         },
         {
