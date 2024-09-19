@@ -32,7 +32,6 @@ export class WebSocketService {
   ): Promise<void> {
     try {
       const tpsData = await this.blockDAO.tps(
-        { cursor: null, direction: 'before' },
         blockCount, // Fetch the specified number of blocks
       );
       ws.send(JSON.stringify({ type: 'tps_data', data: tpsData }));

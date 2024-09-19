@@ -65,7 +65,7 @@ export class BlockResolver {
       throw new GraphQLError('Last must be provided');
     }
     const blockDAO = new BlockDAO();
-    const tps = await blockDAO.tps(new PaginatedParams(params), params.last);
+    const tps = await blockDAO.tps(params.last);
     return tps;
   }
 }

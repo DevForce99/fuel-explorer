@@ -122,62 +122,33 @@ export default class BlockDAO {
     return new Block(blockData);
   }
 
-  async tps(paginatedParams: PaginatedParams, last: Number) {
-    const direction = '<';
+  async tps(last: Number) {
     const blocksData = await this.databaseConnection.query(
       `
-		select 
-			*
-		from 
-			indexer.blocks b
-		where
-			$1::integer is null or b._id ${direction} $1
-		order by
-			b._id desc
-		limit ${last}
-	`,
-      [paginatedParams.cursor],
+      SELECT 
+          b.timestamp AS timestamp,
+          b.data->'header'->>'transactionsCount' AS tps,
+          b.gas_used AS gasused,
+          b._id AS blockno,
+          b.producer
+      FROM 
+          indexer.blocks b
+      ORDER BY
+          b._id DESC
+      LIMIT ${last};
+      `,
+      [],
     );
-    const blocks = [];
-    for (const blockData of blocksData) {
-      blocks.push(new Block(blockData));
-    }
-    if (blocks.length === 0) {
-      return {
-        nodes: [],
-        pageInfo: {
-          hasNextPage: false,
-          hasPreviousPage: false,
-          endCursor: '',
-          startCursor: '',
-        },
-      };
-    }
-    const startCursor = blocksData[0]._id;
-    const endCursor = blocksData[blocksData.length - 1]._id;
-    const hasPreviousPage = (
-      await this.databaseConnection.query(
-        'select exists(select 1 from indexer.blocks where _id < $1)',
-        [endCursor],
-      )
-    )[0].exists;
-    const hasNextPage = (
-      await this.databaseConnection.query(
-        'select exists(select 1 from indexer.blocks where _id > $1)',
-        [startCursor],
-      )
-    )[0].exists;
-    const newNodes = blocks.map((n) => n.toTPSNode());
 
-    const paginatedResults = {
-      nodes: newNodes,
-      pageInfo: {
-        hasNextPage,
-        hasPreviousPage,
-        endCursor,
-        startCursor,
-      },
+    const formattedBlocksData = blocksData.map((block) => ({
+      timestamp: new Date(Number(block.timestamp)).getTime(),
+      tps: Number(block.tps),
+      gasUsed: Number(block.gasused),
+      blockNo: block.blockno,
+      producer: block.producer,
+    }));
+    return {
+      nodes: formattedBlocksData,
     };
-    return paginatedResults;
   }
 }

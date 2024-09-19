@@ -1,17 +1,11 @@
-query tps($before: String, $last: Int) {
-  tps(before: $before, last: $last) {
+query tps($last: Int) {
+  tps(last: $last) {
     nodes {
       timestamp
       tps
       gasUsed
       blockNo
       producer
-    }
-    pageInfo {
-      endCursor
-      hasNextPage
-      hasPreviousPage
-      startCursor
     }
   }
 }

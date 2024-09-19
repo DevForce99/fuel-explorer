@@ -1,0 +1,11 @@
+query tps($last: Int){
+    tps(last: $last){
+        nodes{
+            timestamp
+            tps
+            gasUsed
+            blockNo
+            producer
+        }
+    }
+}
