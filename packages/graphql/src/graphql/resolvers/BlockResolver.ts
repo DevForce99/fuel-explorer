@@ -3,7 +3,6 @@ import { logger } from '~/core/Logger';
 import type {
   GQLBlock,
   GQLQueryBlockArgs,
-  GQLQueryBlockRewardStatisticsArgs,
   GQLQueryBlocksArgs,
 } from '~/graphql/generated/sdk-provider';
 import BlockDAO from '~/infra/dao/BlockDAO';
@@ -13,7 +12,6 @@ type Source = GQLBlock;
 type Params = {
   blocks: GQLQueryBlocksArgs;
   block: GQLQueryBlockArgs;
-  blockReward: GQLQueryBlockRewardStatisticsArgs;
 };
 
 export class BlockResolver {
@@ -23,7 +21,6 @@ export class BlockResolver {
       Query: {
         block: resolvers.block,
         blocks: resolvers.blocks,
-        blockRewardStatistics: resolvers.blockRewardStatistics,
       },
     };
   }
@@ -56,14 +53,6 @@ export class BlockResolver {
     const blockDAO = new BlockDAO();
     const blocks = await blockDAO.getPaginatedBlocks(
       new PaginatedParams(params),
-    );
-    return blocks;
-  }
-
-  async blockRewardStatistics(_: Source, params: Params['blockReward']) {
-    const blockDAO = new BlockDAO();
-    const blocks = await blockDAO.getBlockRewards(
-      params.timeFilter ? params.timeFilter : '',
     );
     return blocks;
   }
