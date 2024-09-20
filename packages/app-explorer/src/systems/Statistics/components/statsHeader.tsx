@@ -64,7 +64,7 @@ const StatsHeader = () => {
   useEffect(() => {
     getStats().then((value: any) => {
       setStats(value);
-      setIsLoading(false); // Set loading to false when data is fetched
+      setIsLoading(false);
     });
   }, []);
 

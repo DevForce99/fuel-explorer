@@ -93,7 +93,7 @@ const TransaccountStats = () => {
       const data: any = await getDailyActiveAccountStatsAction({
         timeFilter: _displayValue,
       });
-      console.log(data);
+
       if (!Array.isArray(data)) {
         throw new Error('Expected data to be an array');
       }
@@ -103,7 +103,6 @@ const TransaccountStats = () => {
         rewards: item.dailyFee,
       }));
 
-      console.log('Transformed Data is', transformedData);
       return transformedData;
     } catch (error) {
       console.error('Error fetching or processing block statistics:', error);
@@ -114,7 +113,6 @@ const TransaccountStats = () => {
   useEffect(() => {
     setIsLoadingNewAccountsData(true);
     getNewAccountStatistics(newAccountsFilter).then((value: any) => {
-      console.log('Here is the value', value);
       setNewAccountsData(value);
       setIsLoadingNewAccountsData(false);
     });
@@ -124,7 +122,6 @@ const TransaccountStats = () => {
     setIsLoadingCumulativeAccountsData(true);
     getCumulativeAccountStatistics(cumulativeAccountFilter).then(
       (value: any) => {
-        console.log('Here is the value', value);
         setCumulativeAccountsData(value);
         setIsLoadingCumulativeAccountsData(false);
       },
@@ -134,7 +131,6 @@ const TransaccountStats = () => {
   useEffect(() => {
     setIsLoadingDailyAccountsData(true);
     getDailyAccountsData(dailyAccountsDataFilter).then((value: any) => {
-      console.log('Here is the value', value);
       setDailyAccountsData(value);
       setIsLoadingDailyAccountsData(false);
     });

@@ -3,7 +3,6 @@
 import { z } from 'zod';
 import { act } from '~/systems/Core/utils/act-server';
 import { sdk } from '~/systems/Core/utils/sdk';
-import { getDailyAccountCreationStats } from '~/systems/Statistics/actions/getAccounts';
 
 const PER_PAGE = 10;
 
@@ -26,6 +25,5 @@ export const getLastTxs = act(schema, async ({ cursor, dir = 'after' }) => {
     params.before = cursor;
   }
   const { data } = await sdk.recentTransactions(params);
-  await getDailyAccountCreationStats({ timeFilter: '30days' });
   return data.transactions;
 });
