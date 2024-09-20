@@ -91,7 +91,10 @@ const BlockStats = () => {
             <LineGraph
               dataProp={newBlocksData}
               titleProp={'New Block'}
-              defaultSelectedValue={newBlocksData.at(-1)?.count}
+              defaultSelectedValue={newBlocksData.reduce(
+                (total, item) => total + item.count,
+                0,
+              )}
               selectedTimeRange={blockTimeFilter}
               timeRangeOptions={Object.values(filterOption) as []}
               onTimeRangeChange={(days) => {

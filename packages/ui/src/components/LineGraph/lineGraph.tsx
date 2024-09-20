@@ -6,6 +6,7 @@ import {
   AreaChart,
   CartesianGrid,
   ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
@@ -52,22 +53,20 @@ export const LineGraph: React.FC<LineGraphProps> = ({
   defaultSelectedValue,
 }) => {
   const [selectedPoint, setSelectedPoint] = useState<any>(defaultSelectedValue);
+  const [_hoveredPoint, _setHoveredPoint] = useState<any>(null); // Hover state
   const [containerWidth, setContainerWidth] = useState<number>(0);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false); // Track dark mode state
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Detect dark mode using Tailwind's dark mode class
     const checkDarkMode = () => {
       const isDark = document.documentElement.classList.contains('dark');
       setIsDarkMode(isDark);
     };
 
-    // Initial check
     checkDarkMode();
 
-    // Handle dark mode toggle (optional)
     const observer = new MutationObserver(checkDarkMode);
     observer.observe(document.documentElement, {
       attributes: true,
@@ -100,26 +99,26 @@ export const LineGraph: React.FC<LineGraphProps> = ({
   const data = dataProp;
 
   useEffect(() => {
-    const initialData = dataProp;
-    if (initialData.length > 0) {
+    if (dataProp.length > 0) {
       setSelectedPoint(defaultSelectedValue);
-      console.log('The default selected value is ', defaultSelectedValue);
     }
   }, [selectedTimeRange, dataProp, defaultSelectedValue]);
 
-  useEffect(() => {
-    console.log(selectedPoint);
-  }, [selectedPoint]);
-
-  const handleClick = (data: any) => {
+  const _handleClick = (data: any) => {
     setSelectedPoint(data.count);
   };
 
+  // const handleMouseMove = (e: any) => {
+  //   if (e?.activePayload && e.activePayload.length >= 0) {
+  //     console.log('This is my hover point', e.activePayload);
+  //     setHoveredPoint(e.activePayload[0].payload);
+  //   }
+  // };
+
   const chartHeight = containerWidth * 0.5;
 
-  // Define gradients for light and dark mode
-  const gradientStartColor = isDarkMode ? '#14b773' : '#14b773'; // Can be different based on your preference
-  const gradientEndColor = isDarkMode ? '#14b773' : '#14b773'; // Modify if you want different color in light mode
+  const gradientStartColor = isDarkMode ? '#14b773' : '#14b773';
+  const gradientEndColor = isDarkMode ? '#14b773' : '#14b773';
 
   return (
     <RoundedContainer ref={containerRef} className="py-4 pr-2 pl-5 pb-7">
@@ -151,30 +150,27 @@ export const LineGraph: React.FC<LineGraphProps> = ({
         </Select>
       </div>
 
-      <div className="flex-grow my-3 mt-2">
-        {selectedPoint ? (
-          <h1 className="text-xl font-mono text-heading">
-            {selectedPoint} {valueUnit || ''}
-          </h1>
-        ) : (
-          <h1 className="text-heading text-xl"> {defaultSelectedValue} </h1>
-        )}
+      <div className="flex-grow my-3 mt-2 ">
+        <h1 className="text-heading text-xl">
+          {selectedPoint || defaultSelectedValue} {valueUnit}
+        </h1>
       </div>
 
       <ResponsiveContainer width="100%" height={chartHeight}>
         <AreaChart
           data={data}
-          onClick={(e) => {
-            if (e?.activePayload && e.activePayload.length >= 0) {
-              handleClick(e.activePayload[0].payload);
-            }
-          }}
+          // onClick={(e) => {
+          //   if (e?.activePayload && e.activePayload.length >= 0) {
+          //     handleClick(e.activePayload[0].payload);
+          //   }
+          // }}
+          // onMouseMove={handleMouseMove} // Add hover support
         >
           <CartesianGrid stroke="rgba(255, 255, 255, 0.04)" />
 
           <XAxis
             dataKey="start"
-            tickFormatter={(tick) => new Date(tick).toLocaleDateString()} // Converts timestamp to readable date
+            tickFormatter={(tick) => new Date(tick).toLocaleDateString()}
             axisLine={false}
             tickLine={false}
             tick={{
@@ -220,6 +216,24 @@ export const LineGraph: React.FC<LineGraphProps> = ({
             fill="url(#colorGradient)"
             dot={{ fill: '#14b773', stroke: '#000', strokeWidth: 2, r: 0 }}
             activeDot={{ r: 5 }}
+          />
+          <Tooltip
+            formatter={(value) => [value]} // Simply return the value (count) without a label
+            labelFormatter={(label) => new Date(label).toLocaleString()}
+            contentStyle={{
+              backgroundColor: 'var(--gray-1)', // Set the background to your custom gray color
+              borderColor: 'var(--gray-2)', // Set the border color
+              borderRadius: '8px', // Customize the border radius
+              color: 'var(--gray-1)', // Text color
+            }}
+            labelStyle={{
+              color: 'var(--gray-12)', // Label text color
+              fontWeight: 'bold',
+            }}
+            itemStyle={{
+              color: '#00F58C', // Data value text color
+            }}
+            cursor={{ stroke: '#00F58C', strokeWidth: 2 }} // Customize hover line style
           />
         </AreaChart>
       </ResponsiveContainer>

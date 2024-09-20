@@ -160,6 +160,11 @@ const TransactionStats = () => {
       },
     );
   }, [cumulativeTransactionFeeFilter]);
+  const totalCount = averageTransactionsData.reduce(
+    (acc, curr) => acc + curr.count,
+    0,
+  );
+  const averageCount = totalCount / averageTransactionsData.length || 0; // Ensure there's no division by zero
 
   return (
     <div className="text-heading text-md font-mono my-20">
@@ -244,7 +249,7 @@ const TransactionStats = () => {
               valueUnit={'ETH'}
               timeRangeOptions={Object.values(filterOption) as []}
               selectedTimeRange={averageTransactionsFilter}
-              defaultSelectedValue={averageTransactionsData[0]?.count}
+              defaultSelectedValue={averageCount.toFixed(9)}
               onTimeRangeChange={(days) => {
                 setAverageTransactionsFilter(getFilterOptionByValue(days));
               }}

@@ -179,7 +179,10 @@ const TransaccountStats = () => {
               dataProp={dailyAccountsData}
               titleProp={'Daily Active Accounts'}
               selectedTimeRange={dailyAccountsDataFilter}
-              defaultSelectedValue={dailyAccountsData.at(-1)?.count}
+              defaultSelectedValue={dailyAccountsData.reduce(
+                (total, item) => total + item.count,
+                0,
+              )}
               timeRangeOptions={Object.values(filterOption) as []}
               onTimeRangeChange={(days) => {
                 setDailyAccountsDataFilter(getFilterOptionByValue(days));
@@ -201,7 +204,10 @@ const TransaccountStats = () => {
               titleProp={'New Accounts'}
               timeRangeOptions={Object.values(filterOption) as []}
               selectedTimeRange={newAccountsFilter}
-              defaultSelectedValue={newAccountsData.at(-1)?.count}
+              defaultSelectedValue={newAccountsData.reduce(
+                (total, item) => total + item.count,
+                0,
+              )}
               onTimeRangeChange={(days) => {
                 setNewAccountsFilter(getFilterOptionByValue(days));
               }}
