@@ -68,4 +68,6 @@ export * from './components/ToggleGroup';
 export * from './components/Tooltip';
 export * from './components/Portal';
 export * from './utils/component';
+export * from './components/LineGraph';
+export * from './components/Box/RoundedContainer';
 export * from './utils/radixUiThemesTailwindPlugin';
