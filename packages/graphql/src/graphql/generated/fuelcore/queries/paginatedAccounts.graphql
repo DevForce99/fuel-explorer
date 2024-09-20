@@ -1,0 +1,16 @@
+query paginatedAccounts($cursor: String, $direction: String, $first: Int, $sortBy: String, $sortOrder: String){
+    paginatedAccounts(cursor: $cursor, direction: $direction, first: $first, sortBy: $sortBy, sortOrder: $sortOrder){
+        nodes{
+            id
+            account_id
+            balance
+            transaction_count
+        }
+        pageInfo{
+            endCursor
+            hasNextPage
+            hasPreviousPage
+            startCursor
+        }
+    }
+}

@@ -199,10 +199,15 @@ export default class AccountDAO {
 
     query += ' ORDER BY timestamp ASC';
 
-    // Execute the main query with the interval start date as a parameter
-    const accountsData = await this.databaseConnection.query(query, [
-      intervalStartTimeDate,
-    ]);
+    let accountsData;
+    if (_interval) {
+      // Execute the main query with the interval start date as a parameter
+      accountsData = await this.databaseConnection.query(query, [
+        intervalStartTimeDate,
+      ]);
+    } else {
+      accountsData = await this.databaseConnection.query(query, []);
+    }
     return {
       nodes: accountsData,
       count: accountsData.length,
