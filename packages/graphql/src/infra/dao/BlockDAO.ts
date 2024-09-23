@@ -121,4 +121,78 @@ export default class BlockDAO {
     if (!blockData) return;
     return new Block(blockData);
   }
+
+  async getBlocksInRange(startTimestamp: string, endTimestamp: string) {
+    const blocksData = await this.databaseConnection.query(
+      `
+        SELECT 
+          _id, 
+          timestamp, 
+          (jsonb_array_elements(data->'transactions')->>'mintAmount')::numeric AS reward
+        FROM 
+          indexer.blocks
+        WHERE 
+          timestamp >= $1 AND timestamp < $2
+        ORDER BY timestamp ASC
+      `,
+      [startTimestamp, endTimestamp],
+    );
+    return blocksData;
+  }
+
+  async insertBlockStatistics(
+    timestamp: string,
+    numberOfBlocks: number,
+    cumulativeBlockReward: number,
+    startBlock: number,
+    endBlock: number,
+  ) {
+    await this.databaseConnection.query(
+      `
+        INSERT INTO indexer.block_statistics (timestamp, number_of_blocks, cumulative_block_reward, start_block, end_block)
+        VALUES ($1, $2, $3, $4, $5)
+      `,
+      [timestamp, numberOfBlocks, cumulativeBlockReward, startBlock, endBlock],
+    );
+  }
+
+  async findLatestStatisticsTimestamp() {
+    const [result] = await this.databaseConnection.query(
+      `
+        SELECT timestamp FROM indexer.block_statistics
+        ORDER BY timestamp DESC
+        LIMIT 1
+      `,
+      [],
+    );
+    return result ? result.timestamp : null;
+  }
+
+  async getBlockStatisticsInRange(
+    startTimestamp: string,
+    endTimestamp: string,
+  ) {
+    const statsData = await this.databaseConnection.query(
+      `
+        SELECT * FROM indexer.block_statistics
+        WHERE timestamp >= $1 AND timestamp < $2
+        ORDER BY timestamp ASC
+      `,
+      [startTimestamp, endTimestamp],
+    );
+    return statsData;
+  }
+
+  async getEarliestBlockTimestamp(): Promise<string> {
+    const [result] = await this.databaseConnection.query(
+      `
+      SELECT timestamp
+      FROM indexer.blocks
+      ORDER BY timestamp ASC
+      LIMIT 1
+      `,
+      [],
+    );
+    return result ? result.timestamp : null;
+  }
 }
