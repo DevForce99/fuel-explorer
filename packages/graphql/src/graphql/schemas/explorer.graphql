@@ -225,8 +225,7 @@ type Query {
   predicate(address: String!): PredicateItem
   tps: TPSConnection!
   getBlocksDashboard: BlocksDashboardConnection!
-  newBlockStatistics(timeFilter: String): NewBlockStatisticsConnection!
-  blockRewardStatistics(timeFilter: String): blockRewardStatisticsConnection!
+  asset (assetId: String!): Asset
 }
 
 type TPS {
@@ -251,20 +250,31 @@ type BlocksDashboardConnection {
   nodes: [BlocksDashboard!]!
 }
 
-type NewBlockStatistic {
-  new_blocks: U64!
-  time: String!
+type Asset {
+	assetId: String
+	contractId: String
+	name: String
+	symbol: String
+	decimals: U64
+	icon: String
+	verified: Boolean
+	networks: [AssetNetwork]
 }
 
-type NewBlockStatisticsConnection {
-  nodes: [NewBlockStatistic!]!
+union AssetNetwork =
+  | AssetNetworkFuel
+  | AssetNetworkEthereum
+
+type AssetNetworkFuel {
+	type: String
+	decimals: U64
+	assetId: String
+	contractId: String
+	chainId: U64
 }
 
-type BlockRewardStatistics {
-  block_reward: U64!
-  time: String!
-}
-
-type blockRewardStatisticsConnection {
-  nodes: [BlockRewardStatistics!]!
+type AssetNetworkEthereum {
+	type: String
+	decimals: U64
+	address: String
 }

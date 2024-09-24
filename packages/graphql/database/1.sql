@@ -1,11 +1,12 @@
-CREATE TABLE indexer.block_statistics (
-    id SERIAL PRIMARY KEY,
-    timestamp TIMESTAMP NOT NULL,
-    number_of_blocks INTEGER NOT NULL,
-    cumulative_block_reward NUMERIC NOT NULL,
-    start_block INTEGER NOT NULL,
-    end_block INTEGER NOT NULL
+create table indexer.assets_contracts (
+	asset_id text not null,
+	contract_id text not null,
+	transaction_id text not null,
+	name text,
+	symbol text,
+	decimals integer,
+	error text,
+	primary key (asset_id, contract_id)
 );
-
-CREATE UNIQUE INDEX ON indexer.block_statistics(id);
-CREATE INDEX ON indexer.block_statistics(timestamp);
+create index on indexer.assets_contracts (asset_id);
+create index on indexer.assets_contracts (contract_id);
