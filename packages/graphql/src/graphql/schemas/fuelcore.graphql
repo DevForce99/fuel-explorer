@@ -782,6 +782,8 @@ type Query {
   transactionsByOwner(after: String, before: String, first: Int, last: Int, owner: Address!): TransactionConnection!
   transactionsByBlockId(after: String, before: String, first: Int, last: Int, blockId: String!): TransactionConnection!
   blockStatistics(startDate: String!, endDate: String!): BlockStatisticsConnection!
+  tps: TPSConnection!
+  getBlocksDashboard : BlocksDashboardConnection!
 }
 
 type Receipt {
@@ -1034,4 +1036,26 @@ type BlockStatistics {
 
 type BlockStatisticsConnection {
   nodes: [BlockStatistics!]
+
+type TPS {
+  start: String
+  end: String
+  txCount: U64!
+  totalGas: U64!
+}
+
+type TPSConnection {
+  nodes: [TPS!]!
+}
+
+type BlocksDashboard {
+  timestamp: U64!
+  gasUsed: U64!
+  blockNo: U64!
+  producer: String
+}
+
+type BlocksDashboardConnection {
+  nodes: [BlocksDashboard!]!
+
 }
