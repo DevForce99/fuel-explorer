@@ -225,6 +225,8 @@ type Query {
   predicate(address: String!): PredicateItem
   tps: TPSConnection!
   getBlocksDashboard: BlocksDashboardConnection!
+  newBlockStatistics(timeFilter: String): NewBlockStatisticsConnection!
+  blockRewardStatistics(timeFilter: String): blockRewardStatisticsConnection!
 }
 
 type TPS {
@@ -247,4 +249,22 @@ type BlocksDashboard {
 
 type BlocksDashboardConnection {
   nodes: [BlocksDashboard!]!
+}
+
+type NewBlockStatistic {
+  new_blocks: U64!
+  time: String!
+}
+
+type NewBlockStatisticsConnection {
+  nodes: [NewBlockStatistic!]!
+}
+
+type BlockRewardStatistics {
+  block_reward: U64!
+  time: String!
+}
+
+type blockRewardStatisticsConnection {
+  nodes: [BlockRewardStatistics!]!
 }

@@ -1,7 +1,7 @@
 import { DatabaseConnection } from '../database/DatabaseConnection';
 import PaginatedParams from '../paginator/PaginatedParams';
 import Block from './Block';
-import { createIntervals, roundToNearest } from './utils';
+import { createIntervals, getTimeInterval, roundToNearest } from './utils';
 
 export default class BlockDAO {
   databaseConnection: DatabaseConnection;
@@ -134,7 +134,7 @@ export default class BlockDAO {
           indexer.blocks
         WHERE 
           timestamp >= $1 AND timestamp < $2
-        ORDER BY timestamp ASC
+        ORDER BY _id ASC
       `,
       [startTimestamp, endTimestamp],
     );
@@ -195,7 +195,7 @@ export default class BlockDAO {
       [],
     );
     return result ? result.timestamp : null;
-}
+  }
 
   async getBlocksDashboard() {
     const blocksData = await this.databaseConnection.query(
@@ -283,6 +283,88 @@ export default class BlockDAO {
 
     return {
       nodes: intervals,
+    };
+  }
+
+  async getNewBlockStatistics(timeFilter: string) {
+    const _hours = getTimeInterval(timeFilter);
+    let query;
+    if (timeFilter === '1day') {
+      query = `
+        SELECT 
+          to_char(b.timestamp, 'dd/mm/yyyy HH') as time,
+          sum(b.number_of_blocks::numeric) as new_blocks 
+        FROM 
+          indexer.block_statistics b
+      `;
+    } else {
+      query = `
+        SELECT 
+          to_char(b.timestamp, 'dd/mm/yyyy') as time,
+          sum(b.number_of_blocks::numeric) as new_blocks 
+        FROM 
+          indexer.block_statistics b
+      `;
+    }
+
+    if (_hours !== null) {
+      query += `
+        WHERE b.timestamp > (now() - interval '${_hours} hours')
+      `;
+    }
+    if (timeFilter === '1day') {
+      query += `
+        GROUP BY to_char(b.timestamp, 'dd/mm/yyyy HH');
+      `;
+    } else {
+      query += `
+        GROUP BY to_char(b.timestamp, 'dd/mm/yyyy');
+      `;
+    }
+    const result = await this.databaseConnection.query(query, []);
+    return {
+      nodes: result,
+    };
+  }
+
+  async getBlockRewardStatistics(timeFilter: string) {
+    const _hours = getTimeInterval(timeFilter);
+    let query;
+    if (timeFilter === '1day') {
+      query = `
+        SELECT 
+          to_char(b.timestamp, 'dd/mm/yyyy HH') as time,
+          sum(b.cumulative_block_reward::numeric) as block_reward 
+        FROM 
+          indexer.block_statistics b
+      `;
+    } else {
+      query = `
+        SELECT 
+          to_char(b.timestamp, 'dd/mm/yyyy') as time,
+          sum(b.cumulative_block_reward::numeric) as block_reward 
+        FROM 
+          indexer.block_statistics b
+      `;
+    }
+
+    if (_hours !== null) {
+      query += `
+        WHERE b.timestamp > (now() - interval '${_hours} hours')
+      `;
+    }
+    if (timeFilter === '1day') {
+      query += `
+        GROUP BY to_char(b.timestamp, 'dd/mm/yyyy HH');
+      `;
+    } else {
+      query += `
+        GROUP BY to_char(b.timestamp, 'dd/mm/yyyy');
+      `;
+    }
+    const result = await this.databaseConnection.query(query, []);
+    return {
+      nodes: result,
     };
   }
 }
