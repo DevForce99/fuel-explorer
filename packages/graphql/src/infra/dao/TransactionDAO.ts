@@ -305,7 +305,7 @@ export default class TransactionDAO {
       FROM 
           indexer.transactions t
       WHERE 
-          t.timestamp > (now() - interval '120 hours')
+          t.timestamp > (now() - interval '24 hours')
       GROUP BY 
           to_char(t.timestamp, 'dd/mm/yyyy HH24')
       ORDER BY 

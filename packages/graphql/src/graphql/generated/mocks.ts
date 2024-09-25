@@ -1033,10 +1033,9 @@ export const aSuccessStatus = (overrides?: Partial<GQLSuccessStatus>): { __typen
 export const aTps = (overrides?: Partial<GQLTps>): { __typename: 'TPS' } & GQLTps => {
     return {
         __typename: 'TPS',
-        end: overrides && overrides.hasOwnProperty('end') ? overrides.end! : 'unde',
         start: overrides && overrides.hasOwnProperty('start') ? overrides.start! : 'rerum',
-        totalGas: overrides && overrides.hasOwnProperty('totalGas') ? overrides.totalGas! : '0x9',
-        txCount: overrides && overrides.hasOwnProperty('txCount') ? overrides.txCount! : '0xA',
+        totalgas: overrides && overrides.hasOwnProperty('totalgas') ? overrides.totalgas! : '0x3',
+        txcount: overrides && overrides.hasOwnProperty('txcount') ? overrides.txcount! : '0xc',
     };
 };
 
