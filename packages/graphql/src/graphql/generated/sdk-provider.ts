@@ -1054,11 +1054,9 @@ export type GQLQuery = {
   transactionsByOwner: GQLTransactionConnection;
 };
 
-
 export type GQLQueryAssetArgs = {
   assetId: Scalars['String']['input'];
 };
-
 
 export type GQLQueryBalanceArgs = {
   assetId: Scalars['AssetId']['input'];

@@ -7,6 +7,5 @@ CREATE TABLE indexer.block_statistics (
     end_block INTEGER NOT NULL
 );
 
-CREATE UNIQUE INDEX ON indexer.block_statistics(_id);
 CREATE UNIQUE INDEX ON indexer.block_statistics(id);
 CREATE INDEX ON indexer.block_statistics(timestamp);

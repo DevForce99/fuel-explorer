@@ -1054,11 +1054,9 @@ export type GQLQuery = {
   transactionsByOwner: GQLTransactionConnection;
 };
 
-
 export type GQLQueryAssetArgs = {
   assetId: Scalars['String']['input'];
 };
-
 
 export type GQLQueryBalanceArgs = {
   assetId: Scalars['AssetId']['input'];
@@ -1525,14 +1523,42 @@ export type GQLVariableOutput = {
   to: Scalars['Address']['output'];
 };
 
+export type GQLBlockRewardStatisticsConnection = {
+  __typename: 'blockRewardStatisticsConnection';
+  nodes: Array<GQLBlockRewardStatistics>;
+};
+
 export type GQLAssetQueryVariables = Exact<{
   assetId: Scalars['String']['input'];
 }>;
 
+export type GQLAssetQuery = {
+  __typename: 'Query';
+  asset?: {
+    __typename: 'Asset';
+    assetId?: string | null;
+    contractId?: string | null;
+    name?: string | null;
+    symbol?: string | null;
+    decimals?: string | null;
+    icon?: string | null;
+    verified?: boolean | null;
+  } | null;
+};
 
-export type GQLAssetQuery = { __typename: 'Query', asset?: { __typename: 'Asset', assetId?: string | null, contractId?: string | null, name?: string | null, symbol?: string | null, decimals?: string | null, icon?: string | null, verified?: boolean | null } | null };
-
-export type GQLBalanceItemFragment = { __typename: 'Balance', amount: string, assetId: string, owner: string, utxos?: Array<{ __typename: 'UtxoItem', amount: string, blockCreated?: string | null, txCreatedIdx?: string | null, utxoId: string } | null> | null };
+export type GQLBalanceItemFragment = {
+  __typename: 'Balance';
+  amount: string;
+  assetId: string;
+  owner: string;
+  utxos?: Array<{
+    __typename: 'UtxoItem';
+    amount: string;
+    blockCreated?: string | null;
+    txCreatedIdx?: string | null;
+    utxoId: string;
+  } | null> | null;
+};
 
 export type GQLBalancesQueryVariables = Exact<{
   after?: InputMaybe<Scalars['String']['input']>;
@@ -6582,8 +6608,12 @@ export type SdkFunctionWrapper = <T>(
   variables?: any,
 ) => Promise<T>;
 
-
-const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationType, _variables) => action();
+const defaultWrapper: SdkFunctionWrapper = (
+  action,
+  _operationName,
+  _operationType,
+  _variables,
+) => action();
 const AssetDocumentString = print(AssetDocument);
 const BalancesDocumentString = print(BalancesDocument);
 const BlockDocumentString = print(BlockDocument);
@@ -6611,11 +6641,48 @@ export function getSdk(
   withWrapper: SdkFunctionWrapper = defaultWrapper,
 ) {
   return {
-    asset(variables: GQLAssetQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<{ data: GQLAssetQuery; errors?: GraphQLError[]; extensions?: any; headers: Headers; status: number; }> {
-        return withWrapper((wrappedRequestHeaders) => client.rawRequest<GQLAssetQuery>(AssetDocumentString, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'asset', 'query', variables);
+    asset(
+      variables: GQLAssetQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+    ): Promise<{
+      data: GQLAssetQuery;
+      errors?: GraphQLError[];
+      extensions?: any;
+      headers: Headers;
+      status: number;
+    }> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.rawRequest<GQLAssetQuery>(AssetDocumentString, variables, {
+            ...requestHeaders,
+            ...wrappedRequestHeaders,
+          }),
+        'asset',
+        'query',
+        variables,
+      );
     },
-    balances(variables: GQLBalancesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<{ data: GQLBalancesQuery; errors?: GraphQLError[]; extensions?: any; headers: Headers; status: number; }> {
-        return withWrapper((wrappedRequestHeaders) => client.rawRequest<GQLBalancesQuery>(BalancesDocumentString, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'balances', 'query', variables);
+    balances(
+      variables: GQLBalancesQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+    ): Promise<{
+      data: GQLBalancesQuery;
+      errors?: GraphQLError[];
+      extensions?: any;
+      headers: Headers;
+      status: number;
+    }> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.rawRequest<GQLBalancesQuery>(
+            BalancesDocumentString,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders },
+          ),
+        'balances',
+        'query',
+        variables,
+      );
     },
     block(
       variables?: GQLBlockQueryVariables,

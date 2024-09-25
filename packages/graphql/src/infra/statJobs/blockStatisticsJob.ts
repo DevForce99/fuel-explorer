@@ -9,10 +9,12 @@ export async function generateHourlyBlockStatistics() {
     await blockDAO.findLatestStatisticsTimestamp();
 
   // If no statistics exist, start from the earliest block timestamp
-  const startTimestamp = latestStatisticsTimestamp
+  const initialStartTimestamp = latestStatisticsTimestamp
     ? DateHelper.addHours(latestStatisticsTimestamp, 1) // Next hour window
     : await blockDAO.getEarliestBlockTimestamp(); // Start from the earliest block
 
+  // Adjust the startTimestamp to the beginning of the hour
+  const startTimestamp = DateHelper.floorToHour(initialStartTimestamp);
   // Calculate the end timestamp as one hour after the start timestamp
   const endTimestamp = DateHelper.addHours(startTimestamp, 1);
 
