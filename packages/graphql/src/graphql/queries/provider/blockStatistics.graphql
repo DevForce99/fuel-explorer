@@ -1,9 +1,0 @@
-query blockStatistics($startDate: String!, $endDate: String!) {
-  blockStatistics(startDate: $startDate, endDate: $endDate) {
-    timestamp
-    numberOfBlocks
-    cumulativeBlockReward
-    startBlock
-    endBlock
-  }
-}
