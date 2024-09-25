@@ -2,9 +2,8 @@ query tps{
     tps{
         nodes {
             start
-            end
-            txCount
-            totalGas
+            txcount
+            totalgas
         }
     }
 }

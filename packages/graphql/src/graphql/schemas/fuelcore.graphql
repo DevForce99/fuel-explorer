@@ -1027,9 +1027,8 @@ type VariableOutput {
 
 type TPS {
   start: String
-  end: String
-  txCount: U64!
-  totalGas: U64!
+  txcount: U64!
+  totalgas: U64!
 }
 
 type TPSConnection {

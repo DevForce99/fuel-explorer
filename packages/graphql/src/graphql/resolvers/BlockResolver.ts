@@ -12,7 +12,6 @@ type Source = GQLBlock;
 type Params = {
   blocks: GQLQueryBlocksArgs;
   block: GQLQueryBlockArgs;
-  tps: null;
   getBlocksDashboard: null;
 };
 
@@ -23,7 +22,6 @@ export class BlockResolver {
       Query: {
         block: resolvers.block,
         blocks: resolvers.blocks,
-        tps: resolvers.tps,
         getBlocksDashboard: resolvers.getBlocksDashboard,
       },
     };
@@ -66,12 +64,5 @@ export class BlockResolver {
     const blocks = await blockDAO.getBlocksDashboard();
 
     return blocks;
-  }
-
-  async tps(_: Source, _params: Params['tps']) {
-    const blockDAO = new BlockDAO();
-    const tps = await blockDAO.tps();
-
-    return tps;
   }
 }

@@ -1,7 +1,6 @@
 import { DatabaseConnection } from '../database/DatabaseConnection';
 import PaginatedParams from '../paginator/PaginatedParams';
 import Block from './Block';
-import { createIntervals, roundToNearest } from './utils';
 
 export default class BlockDAO {
   databaseConnection: DatabaseConnection;
@@ -149,66 +148,6 @@ export default class BlockDAO {
 
     return {
       nodes: formattedBlocksData,
-    };
-  }
-
-  async tps() {
-    const currentTime = new Date();
-    const timeMinusOneDay = new Date(
-      currentTime.getTime() - 24 * 60 * 60 * 1000,
-    );
-    const timeMinusOneDayRoundDown = new Date(
-      roundToNearest(timeMinusOneDay.getTime()),
-    );
-    const timeMinusOneDayRoundDownISO = timeMinusOneDayRoundDown.toISOString();
-
-    const blocksData = await this.databaseConnection.query(
-      `
-      SELECT 
-          b.timestamp AS timestamp,
-          b.data->'header'->>'transactionsCount' AS tps,
-          b.gas_used AS gasused
-      FROM 
-          indexer.blocks b
-      WHERE 
-          b.timestamp >= $1
-      ORDER BY _id asc;
-      `,
-      [timeMinusOneDayRoundDownISO],
-    );
-
-    if (blocksData.length === 0) {
-      return { nodes: [] };
-    }
-
-    const lastTimestamp = new Date(
-      Number(blocksData[blocksData.length - 1].timestamp),
-    ).getTime();
-    const firstTimestamp = new Date(Number(blocksData[0].timestamp)).getTime();
-
-    const intervals = createIntervals(firstTimestamp, lastTimestamp, 'hour', 1);
-
-    // Process blocks and put them into the correct interval
-    blocksData.forEach((block) => {
-      const blockTimestamp = new Date(Number(block.timestamp)).getTime();
-      const txCount = Number(block.tps);
-      const gasUsed = Number(block.gasused);
-
-      // Find the correct interval for the current block
-      for (const interval of intervals) {
-        const intervalStart = new Date(interval.start).getTime();
-        const intervalEnd = new Date(interval.end).getTime();
-
-        if (blockTimestamp >= intervalStart && blockTimestamp < intervalEnd) {
-          interval.txCount += txCount;
-          interval.totalGas += gasUsed;
-          break;
-        }
-      }
-    });
-
-    return {
-      nodes: intervals,
     };
   }
 }

@@ -294,4 +294,31 @@ export default class TransactionDAO {
 
     return paginatedResults;
   }
+
+  async tps() {
+    const txData = await this.databaseConnection.query(
+      `
+      SELECT 
+          to_char(t.timestamp, 'dd/mm/yyyy HH24') as start,
+          count(*) AS txCount,
+          sum((data->'status'->>'totalGas')::numeric) AS totalGas
+      FROM 
+          indexer.transactions t
+      WHERE 
+          t.timestamp > (now() - interval '120 hours')
+      GROUP BY 
+          to_char(t.timestamp, 'dd/mm/yyyy HH24')
+      ORDER BY 
+          start;
+      `,
+      [],
+    );
+    if (txData.length === 0) {
+      return { nodes: [] };
+    }
+
+    return {
+      nodes: txData,
+    };
+  }
 }

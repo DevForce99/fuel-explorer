@@ -14,6 +14,7 @@ type Params = {
   transactions: GQLQueryTransactionsArgs;
   transactionByOwner: GQLQueryTransactionsByOwnerArgs;
   transactionByBlockId: GQLQueryTransactionsByBlockIdArgs;
+  tps: null;
 };
 
 export class TransactionResolver {
@@ -25,6 +26,7 @@ export class TransactionResolver {
         transactions: resolvers.transactions,
         transactionsByOwner: resolvers.transactionsByOwner,
         transactionsByBlockId: resolvers.transactionsByBlockId,
+        tps: resolvers.tps,
       },
     };
   }
@@ -65,5 +67,12 @@ export class TransactionResolver {
       paginatedParams,
     );
     return transactions;
+  }
+
+  async tps(_: Source, _params: Params['tps']) {
+    const transactionDAO = new TransactionDAO();
+    const tps = await transactionDAO.tps();
+
+    return tps;
   }
 }
