@@ -1059,11 +1059,6 @@ export type GQLQueryAssetArgs = {
   assetId: Scalars['String']['input'];
 };
 
-export type GQLQueryAssetArgs = {
-  assetId: Scalars['String']['input'];
-};
-
-
 export type GQLQueryBalanceArgs = {
   assetId: Scalars['AssetId']['input'];
   owner: Scalars['Address']['input'];
