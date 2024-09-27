@@ -106,14 +106,14 @@ export function Hero() {
             </div> */}
 
             <Box className={classes.searchWrapper()}>
-              <div className="row-span-2 col-span-4">
+              <div className="row-span-2 col-span-6 sm:col-span-4">
                 <LoadingWrapper
                   isLoading={isLoading}
                   loadingEl={<LoadingBox className="w-full h-[12rem]" />}
                   regularEl={<DailyTransaction blocks={dailyTsxData} />}
                 />
               </div>
-              <div className="row-span-2 col-span-3">
+              <div className="row-span-2 col-span-6 sm:col-span-3">
                 <LoadingWrapper
                   isLoading={isLoading}
                   loadingEl={<LoadingBox className="w-full h-[12rem]" />}
@@ -126,7 +126,7 @@ export function Hero() {
                   }
                 />
               </div>
-              <div className="row-span-1 col-span-5">
+              <div className="row-span-1 col-span-6 sm:col-span-5">
                 <LoadingWrapper
                   isLoading={isLoading}
                   loadingEl={<LoadingBox className="w-full h-[12rem]" />}
@@ -153,7 +153,7 @@ export function Hero() {
                   }
                 />
               </div>
-              <div className={`${'col-span-5 row-span-3'} `}>
+              <div className={`${'col-span-6 row-span-3 sm:col-span-5'} `}>
                 <LoadingWrapper
                   isLoading={isLoading}
                   loadingEl={<LoadingBox className="w-full h-full" />}
@@ -161,7 +161,7 @@ export function Hero() {
                 />
               </div>
 
-              <div className="row-span-2 col-span-4">
+              <div className="row-span-2 col-span-6 sm:col-span-4">
                 <LoadingWrapper
                   isLoading={isLoading}
                   loadingEl={<LoadingBox className="w-full h-[12rem]" />}
@@ -169,7 +169,7 @@ export function Hero() {
                 />
                 {/* <TPSChart /> */}
               </div>
-              <div className="row-span-2 col-span-3">
+              <div className="row-span-2 col-span-6 sm:col-span-3">
                 <LoadingWrapper
                   isLoading={isLoading}
                   loadingEl={<LoadingBox className="w-full h-[12rem]" />}
@@ -204,6 +204,7 @@ const styles = tv({
       'md:grid-cols-1 md:grid-rows-[auto,auto]',
       'lg:grid-cols-12 lg:grid-rows-[repeat(4,auto)]',
       'gap-y-5 gap-x-4',
+      'sm:grid-cols-1',
     ],
   },
 });
